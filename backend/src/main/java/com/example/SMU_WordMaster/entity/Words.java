@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table( name = "words" )
+@Table( name = "words_table" )
 @Getter
 @Setter
 @ToString
