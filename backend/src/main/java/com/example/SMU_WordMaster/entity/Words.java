@@ -12,8 +12,9 @@ import lombok.ToString;
 @ToString
 public class Words {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "word_id")
-    private int wordId;
+    private Long wordId;
 
     @Column(name = "word")
     private String word;
