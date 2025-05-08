@@ -48,9 +48,10 @@ public class GptController {
 
     // 예문 조회 요청
     @GetMapping("/get")
-    public List<String> getSentence(GptDto dto) {
+    public List<String> getSentence(WordsDto dto) {
         List<String> sentenceList = gptService.getSentence(dto.getWord());
 
         return sentenceList;
     }
+
 }
