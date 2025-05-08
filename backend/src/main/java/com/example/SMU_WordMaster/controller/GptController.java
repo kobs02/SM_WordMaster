@@ -1,6 +1,6 @@
 package com.example.SMU_WordMaster.controller;
 
-import com.example.SMU_WordMaster.dto.GptDto;
+import com.example.SMU_WordMaster.dto.WordsDto;
 import com.example.SMU_WordMaster.service.GptService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,7 @@ public class GptController {
 
     // 예문 생성 요청
     @PostMapping("/create")
-    public String createSentence(@RequestBody GptDto dto) {
+    public String createSentence(@RequestBody WordsDto dto) {
         try {
             // 해당 단어에 대한 예문 전부 조회
             List<String> sentenceList = gptService.getSentence(dto.getWord());
@@ -53,5 +53,4 @@ public class GptController {
 
         return sentenceList;
     }
-
 }
