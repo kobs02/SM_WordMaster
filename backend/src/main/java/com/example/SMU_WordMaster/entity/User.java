@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+// 사용자 테이블 매핑용 Entity
+// @ToString: 객체 출력 시 구조 확인을 위해 사용
 @Entity
 @Table(name = "user")
 @Getter

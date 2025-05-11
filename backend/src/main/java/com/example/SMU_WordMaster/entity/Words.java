@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+// 단어 테이블 매핑용 Entity
+// @ToString: 객체 출력 시 구조 확인을 위해 사용
 @Entity
 @Table( name = "words_table" )
 @Getter
@@ -29,4 +31,8 @@ public class Words {
     @Lob
     @Column(name = "sentence")
     private String sentence;
+
+    @Lob
+    @Column(name = "translation")
+    private String translation;
 }

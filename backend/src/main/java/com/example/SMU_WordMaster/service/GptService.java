@@ -28,18 +28,20 @@ public class GptService {
     private String apiKey;
 
     public String getGptResponse(String prompt) {
-        // 이 url로 gpt에게 예문 생성 요청\
+        // 이 url로 gpt에게 예문 생성 요청
         String url = "https://api.openai.com/v1/chat/completions";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(apiKey);
 
+        // 기존 예문과 중복되지 않도록 temperature를 1.0으로 설정
+        // (temperature가 0에 가까울수록, 동일한 질문에 대하여 동일한 응답을 함.)
         Map<String, Object> message = Map.of("role", "user", "content", prompt);
         Map<String, Object> body = Map.of(
                 "model", "gpt-4.1-2025-04-14",
                 "messages", List.of(message),
-                "temperature", 1.0 // 완전 창의적인 예문 생성 요청
+                "temperature", 1.0
         );
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
@@ -54,10 +56,7 @@ public class GptService {
                 if (choices != null && !choices.isEmpty()) {
                     Map messageObj = (Map) choices.get(0).get("message");
                     if (messageObj != null) {
-                        String contentJson = (String) messageObj.get("content");
-                        ObjectMapper mapper = new ObjectMapper();
-                        JsonNode node = mapper.readTree(contentJson);
-                        return node.get("sentence").asText();
+                        return (String) messageObj.get("content");
                     } else {
                         System.out.println("messageObj가 null입니다.");
                     }
@@ -74,8 +73,8 @@ public class GptService {
         return "";
     }
 
-    // Words 엔티티에 예문 추가
-    public void createSentence(String word, String sentence) {
+    // 기존 단어 정보 기반으로 예문과 번역을 추가해 Words 엔티티 저장
+    public void createSentence(String word, String sentence, String translation) {
         Words words = new Words();
         List<Words> wordsList = gptRepository.findByWord(word);
         String mean = wordsList.get(0).getMean();
@@ -85,6 +84,7 @@ public class GptService {
         words.setMean(mean);
         words.setLevel(level);
         words.setSentence(sentence);
+        words.setTranslation(translation);
 
         gptRepository.save(words);
     }
