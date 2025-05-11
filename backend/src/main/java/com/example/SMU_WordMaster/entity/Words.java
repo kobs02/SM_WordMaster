@@ -5,8 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-// 단어 테이블 매핑용 Entity
-// @ToString: 객체 출력 시 구조 확인을 위해 사용
+import java.util.ArrayList;
+import java.util.List;
+
+// 단어 테이블 매핑용 엔티티
 @Entity
 @Table( name = "words_table" )
 @Getter
@@ -28,11 +30,11 @@ public class Words {
     @Column(name = "level")
     private Level level;
 
-    @Lob
-    @Column(name = "sentence")
-    private String sentence;
+    // Bookmarks 연관관계 (1:N)
+    @OneToMany(mappedBy = "words", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bookmarks> bookmarks = new ArrayList<>();
 
-    @Lob
-    @Column(name = "translation")
-    private String translation;
+    // Sentences 연관관계 (1:N)
+    @OneToMany(mappedBy = "words", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Sentences> sentences = new ArrayList<>();
 }
