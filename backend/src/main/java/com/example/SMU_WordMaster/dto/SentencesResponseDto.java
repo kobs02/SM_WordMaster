@@ -9,7 +9,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SentenceResponseDto {
+public class SentencesResponseDto {
     private String sentence;
     private String translation;
 }

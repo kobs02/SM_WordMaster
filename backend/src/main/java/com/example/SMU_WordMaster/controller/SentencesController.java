@@ -1,8 +1,8 @@
 package com.example.SMU_WordMaster.controller;
 
 import com.example.SMU_WordMaster.dto.ErrorResponseDto;
-import com.example.SMU_WordMaster.dto.SentenceResponseDto;
-import com.example.SMU_WordMaster.dto.WordRequestDto;
+import com.example.SMU_WordMaster.dto.SentencesResponseDto;
+import com.example.SMU_WordMaster.dto.WordsRequestDto;
 import com.example.SMU_WordMaster.service.SentencesService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -28,13 +28,13 @@ public class SentencesController {
 
     // GPT를 이용해 예문을 생성하고,DB에 저장하는 API
     @PostMapping("/create")
-    public ResponseEntity<?> createSentence(@RequestBody WordRequestDto wordDto) {
+    public ResponseEntity<?> createSentence(@RequestBody WordsRequestDto wordDto) {
         try {
             String userId = wordDto.getUserId();
             String word = wordDto.getWord();
 
             // 기준 예문 목록 조회( 중복 방지용 )
-            List<SentenceResponseDto> sentencePairs = sentencesService.getSentence(userId, word);
+            List<SentencesResponseDto> sentencePairs = sentencesService.getSentence(userId, word);
 
             // GPT에게 전달할 프롬프트 구성
             String prompt = "[영어 단어]: " + word + "\n[예문]: " + sentencePairs;
@@ -42,7 +42,7 @@ public class SentencesController {
 
             // GPT 응답(JSON)을 객체로 변환
             ObjectMapper mapper = new ObjectMapper();
-            SentenceResponseDto sentenceDto = mapper.readValue(responseJson, SentenceResponseDto.class);
+            SentencesResponseDto sentenceDto = mapper.readValue(responseJson, SentencesResponseDto.class);
 
             String sentence = sentenceDto.getSentence();
             String translation = sentenceDto.getTranslation();
@@ -70,7 +70,7 @@ public class SentencesController {
     @GetMapping("/get")
     public ResponseEntity<?> getSentence(@RequestParam String userId, @RequestParam String word) {
         try {
-            List<SentenceResponseDto> sentenceList = sentencesService.getSentence(userId, word);
+            List<SentencesResponseDto> sentenceList = sentencesService.getSentence(userId, word);
 
             return ResponseEntity.ok(sentenceList);
         }
