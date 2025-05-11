@@ -1,6 +1,6 @@
 package com.example.SMU_WordMaster.service;
 
-import com.example.SMU_WordMaster.dto.SentenceResponseDto;
+import com.example.SMU_WordMaster.dto.SentencesResponseDto;
 import com.example.SMU_WordMaster.entity.Sentences;
 import com.example.SMU_WordMaster.entity.Users;
 import com.example.SMU_WordMaster.entity.Words;
@@ -27,7 +27,7 @@ public class SentencesService {
 
     private final WordsRepository wordsRepository;
     private final SentencesRepository sentencesRepository;
-    private final UsersRepository usersResponsitory;
+    private final UsersRepository usersRepository;
 
     @Value("${OPENAI_API_KEY}")
     private String apiKey;
@@ -80,7 +80,7 @@ public class SentencesService {
 
     // 특정 사용자, 단어 조합의 예문이 20개를 초과하는 경우 가장 오래된 예문 삭제
     public void deleteSentence(String userId, String word) {
-        Users userEntity = usersResponsitory.findById(userId)
+        Users userEntity = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("해당 사용자가 존재하지 않습니다: " + userId));
 
         Words wordEntity = wordsRepository.findByWord(word)
@@ -98,7 +98,7 @@ public class SentencesService {
     public void createSentence(String userId, String word, String sentence, String translation) {
         Sentences sentences = new Sentences();
 
-        Users userEntity = usersResponsitory.findById(userId)
+        Users userEntity = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("해당 사용자가 존재하지 않습니다: " + userId));
 
         Words wordEntity = wordsRepository.findByWord(word)
@@ -113,21 +113,21 @@ public class SentencesService {
     }
 
     // 특정 사용자, 단어 조합의 모든 예문 목록을 조회
-    public List<SentenceResponseDto> getSentence(String userId, String word) {
-        Users userEntity = usersResponsitory.findById(userId)
+    public List<SentencesResponseDto> getSentence(String userId, String word) {
+        Users userEntity = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("해당 사용자가 존재하지 않습니다: " + userId));
 
         Words wordEntity = wordsRepository.findByWord(word)
                 .orElseThrow(() -> new RuntimeException("해당 단어가 존재하지 않습니다: " + word));
 
         List<Sentences> sentences = sentencesRepository.findByUsersAndWords(userEntity, wordEntity);
-        List<SentenceResponseDto> result = new ArrayList<>();
+        List<SentencesResponseDto> result = new ArrayList<>();
 
         for (Sentences s: sentences) {
             String sentence = s.getSentence();
             String translation = s.getTranslation();
 
-            result.add(new SentenceResponseDto(sentence, translation));
+            result.add(new SentencesResponseDto(sentence, translation));
         }
 
         return result;
