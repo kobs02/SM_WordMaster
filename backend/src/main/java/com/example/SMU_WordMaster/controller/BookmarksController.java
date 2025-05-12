@@ -2,14 +2,13 @@ package com.example.SMU_WordMaster.controller;
 
 import com.example.SMU_WordMaster.dto.BookmarksResponseDto;
 import com.example.SMU_WordMaster.dto.ErrorResponseDto;
+import com.example.SMU_WordMaster.dto.SuccessResponseDto;
 import com.example.SMU_WordMaster.dto.WordsRequestDto;
 import com.example.SMU_WordMaster.service.BookmarksService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 // 북마크 관련 요청을 처리하는 컨트롤러
 @RestController
@@ -18,7 +17,7 @@ import java.util.Map;
 public class BookmarksController {
     private final BookmarksService bookmarksService;
 
-    // 북마크 토글 요청( 추가 or 삭제 ): 이미 북마크된 단어면 삭제, 아니면 추가
+    // 이미 북마크된 단어면 삭제, 아니면 추가한 뒤 성공 여부 메시지를 프론트엔드로 반환하는 API
     @PostMapping("/toggle")
     public ResponseEntity<?> toggleBookmark(@RequestBody WordsRequestDto wordsDto) {
         try {
@@ -27,64 +26,64 @@ public class BookmarksController {
 
             boolean isBookmarked = bookmarksService.toggleBookmark(userId, word);
 
-            String message = isBookmarked ? "북마크 추가" : "북마크 삭제";
+            String data = isBookmarked ? "북마크 추가" : "북마크 삭제";
 
-            return ResponseEntity.ok(Map.of("message", message));
+            return ResponseEntity.ok(new SuccessResponseDto<>(true, "북마크 토글 성공", data));
         }
         catch (Exception e) {
             e.printStackTrace();
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponseDto("북마크 토글 실패", e.getMessage()));
+                    .body(new ErrorResponseDto(false, "북마크 토글 실패", e.getMessage()));
         }
     }
 
-    // 특정 단어가 북마크되어 있는지 확인하는 요청
-    @GetMapping("/getByWord")
-    public ResponseEntity<?> getBookmarkByWord(@RequestParam String userId, @RequestParam String word) {
+    // 특정 단어의 북마크 여부 메시지를 프론트엔드로 반환하는 API
+    @GetMapping("/isBookmarked")
+    public ResponseEntity<?> isBookmarked(@RequestParam String userId, @RequestParam String word) {
         try {
-            boolean isBookmarked = bookmarksService.getBookmarkByWord(userId, word);
+            boolean isBookmarked = bookmarksService.isBookmarked(userId, word);
 
-            String message = isBookmarked ? "북마크 추가되어 있음" : "북마크 제거되어 있음";
+            String data = isBookmarked ? "북마크 추가되어 있음" : "북마크 제거되어 있음";
 
-            return ResponseEntity.ok(Map.of("message", message));
+            return ResponseEntity.ok(new SuccessResponseDto<>(true, "북마크 상태 불러오기 성공", data));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponseDto("북마크 상태 불러오기 실패", e.getMessage()));
+                    .body(new ErrorResponseDto(false, "북마크 상태 불러오기 실패", e.getMessage()));
         }
     }
 
-    // 사용자의 모든 북마크된 단어 목록을 조회하는 요청
-    @GetMapping("/getByList")
-    public ResponseEntity<?> getBookmarkByList(@RequestParam String userId) {
+    // 사용자의 모든 북마크된 단어 목록을 프론트엔드로 반환하는 API
+    @GetMapping("/getAllByUser")
+    public ResponseEntity<?> getAllBookmarks(@RequestParam String userId) {
         try {
-            BookmarksResponseDto bookmarksDto = bookmarksService.getBookmarkByList(userId);
+            BookmarksResponseDto bookmarksDto = bookmarksService.getAllBookmarksByUser(userId);
 
-            return ResponseEntity.ok(bookmarksDto);
+            return ResponseEntity.ok(new SuccessResponseDto<>(true, "북마크된 단어 목록 불러오기 성공", bookmarksDto));
         }
         catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponseDto("북마크된 모든 단어 불러오기 실패", e.getMessage()));
+                    .body(new ErrorResponseDto(false, "북마크된 단어 목록 불러오기 실패", e.getMessage()));
         }
     }
 
-    // 특정 단어에 대한 북마크 삭제 요청 -> 삭제 후 남은 북마크 리스트 반환
+    // 특정 단어에 대한 북마크를 제거한 후 남은 북마크 리스트를 프론트엔드로 반환하는 API
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteBookmark(@RequestBody WordsRequestDto wordsDto) {
         try {
             String userId = wordsDto.getUserId();
             String word = wordsDto.getWord();
 
-            BookmarksResponseDto bookmarksDto = bookmarksService.deleteBookmarkByList(userId, word);
+            BookmarksResponseDto bookmarksDto = bookmarksService.deleteBookmarkAndGetAll(userId, word);
 
-            return ResponseEntity.ok(bookmarksDto);
+            return ResponseEntity.ok(new SuccessResponseDto<>(true, "북마크 삭제 성공", bookmarksDto));
         }
         catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponseDto("북마크 삭제 실패", e.getMessage()));
+                    .body(new ErrorResponseDto(false, "북마크 삭제 실패", e.getMessage()));
         }
     }
 }

@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 // 예문 생성 및 관리 전반을 담당하는 서비스 클래스
 @Service
@@ -79,7 +80,7 @@ public class SentencesService {
     }
 
     // 특정 사용자, 단어 조합의 예문이 20개를 초과하는 경우 가장 오래된 예문 삭제
-    public void deleteSentence(String userId, String word) {
+    public void deleteOldestSentenceIfOverLimit(String userId, String word) {
         Users userEntity = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("해당 사용자가 존재하지 않습니다: " + userId));
 
@@ -87,15 +88,15 @@ public class SentencesService {
                 .orElseThrow(() -> new RuntimeException("해당 단어가 존재하지 않습니다: " + word));
 
         if (sentencesRepository.countByUsersAndWords(userEntity, wordEntity) > 20) {
-            List<Sentences> sentencesList = sentencesRepository.findByUsersAndWords(userEntity, wordEntity);
-            Long minId = sentencesList.get(0).getSentenceId();
+            Sentences sentenceEntity = sentencesRepository.findTopByUsersAndWordsOrderBySentenceId(userEntity, wordEntity).get();
+            Long minId = sentenceEntity.getSentenceId();
 
             sentencesRepository.deleteById(minId);
         }
     }
 
     // 주어진 사용자와 단어에 해당하는 예문 1개를 예문 엔티티에 저장
-    public void createSentence(String userId, String word, String sentence, String translation) {
+    public void saveSentence(String userId, String word, String sentence, String translation) {
         Sentences sentences = new Sentences();
 
         Users userEntity = usersRepository.findById(userId)
@@ -112,18 +113,52 @@ public class SentencesService {
         sentencesRepository.save(sentences);
     }
 
-    // 특정 사용자, 단어 조합의 모든 예문 목록을 조회
-    public List<SentencesResponseDto> getSentence(String userId, String word) {
+    public List<SentencesResponseDto> getAllSentencesByWord(String userId, String word) {
+        Users userEntity = usersRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("해당 사용자가 존재하지 않습니다: " + userId));
+        Words wordEntity = wordsRepository.findByWord(word)
+                .orElseThrow(() -> new RuntimeException("해당 단어가 존재하지 않습니다: " + word));
+
+        List<Sentences> sentencesList = sentencesRepository.findByUsersAndWords(userEntity, wordEntity);
+
+        List<SentencesResponseDto> result = new ArrayList<>();
+        for (Sentences s : sentencesList) {
+            String sentence = s.getSentence();
+            String translation = s.getTranslation();
+
+            result.add(new SentencesResponseDto(sentence, translation));
+        }
+
+        return result;
+    }
+
+    // 특정 사용자, 단어 조합에 해당하는 예문 중 가장 최근에 생성된 예문을 SentencesResponseDto 형태로 반환
+    public SentencesResponseDto getLatestSentenceByWord(String userId, String word) {
         Users userEntity = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("해당 사용자가 존재하지 않습니다: " + userId));
 
         Words wordEntity = wordsRepository.findByWord(word)
                 .orElseThrow(() -> new RuntimeException("해당 단어가 존재하지 않습니다: " + word));
 
-        List<Sentences> sentences = sentencesRepository.findByUsersAndWords(userEntity, wordEntity);
+        Optional<Sentences> sentenceObj = sentencesRepository.findTopByUsersAndWordsOrderBySentenceIdDesc(userEntity, wordEntity);
+
+        if (sentenceObj.isPresent()) {
+            Sentences sentenceEntity = sentenceObj.get();
+            return new SentencesResponseDto(sentenceEntity.getSentence(), sentenceEntity.getTranslation());
+        }
+        else return new SentencesResponseDto("", "");
+    }
+
+    // 특정 사용자가 생성한 모든 예문을 SentenceResponseDto 리스트 형태로 반환
+    public List<SentencesResponseDto> getAllSentencesByUser(String userId) {
+        Users userEntity = usersRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("해당 사용자가 존재하지 않습니다: " + userId));
+
+        List<Sentences> sentencesList = sentencesRepository.findByUsers(userEntity);
+
         List<SentencesResponseDto> result = new ArrayList<>();
 
-        for (Sentences s: sentences) {
+        for (Sentences s : sentencesList) {
             String sentence = s.getSentence();
             String translation = s.getTranslation();
 

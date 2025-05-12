@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 // 북마크 관련 내부 로직을 처리하는 서비스 클래스
 @Service
@@ -40,8 +41,9 @@ public class BookmarksService {
             bookmarksRepository.save(bookmarks);
         }
         else {
-            Long bookmarkId = bookmarksRepository.findBookmarkIdByUsersAndWords(userEntity, wordEntity);
-            bookmarksRepository.deleteById(bookmarkId);
+            Bookmarks bookmarkEntity = bookmarksRepository.findByUsersAndWords(userEntity, wordEntity).get();
+            bookmarksRepository.deleteById(bookmarkEntity.getBookmarkId());
+
         }
 
         // 최종 북마크 상태 반환
@@ -49,7 +51,7 @@ public class BookmarksService {
     }
 
     // 단일 단어의 북마크를 삭제한 후, 해당 사용자의 전체 북마크 목록을 반환
-    public BookmarksResponseDto deleteBookmarkByList(String userId, String word) {
+    public BookmarksResponseDto deleteBookmarkAndGetAll(String userId, String word) {
         Users userEntity = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("해당 사용자가 존재하지 않습니다: " + userId));
 
@@ -57,40 +59,43 @@ public class BookmarksService {
                 .orElseThrow(() -> new RuntimeException("해당 단어가 존재하지 않습니다: " + word));
 
         // 북마크가 존재한다면 삭제
-        Long bookmarkId = bookmarksRepository.findBookmarkIdByUsersAndWords(userEntity, wordEntity);
-        if (bookmarkId != null)
-            bookmarksRepository.deleteById(bookmarkId);
+        Optional<Bookmarks> bookmarkObj = bookmarksRepository.findByUsersAndWords(userEntity, wordEntity);
+
+        if (bookmarkObj.isPresent()) {
+            Bookmarks bookmarkEntity = bookmarkObj.get();
+            bookmarksRepository.deleteById(bookmarkEntity.getBookmarkId());
+        }
 
         // 북마크된 단어 ID를 기반으로 문자열 리스트 구성
-        List<Long> wordIdList = bookmarksRepository.findWordIdByUsers(userEntity);
+        List<Bookmarks> bookmarksList = bookmarksRepository.findByUsers(userEntity);
         List<String> result = new ArrayList<>();
 
-        for (Long id: wordIdList) {
-            String bookmarkedWord = wordsRepository.findWordByWordId(id);
-            result.add(bookmarkedWord);
+        for (Bookmarks b: bookmarksList) {
+            Words bookmarkedWordEntity = b.getWords();
+            result.add(bookmarkedWordEntity.getWord());
         }
 
         return new BookmarksResponseDto(result);
     }
 
     // 특정 사용자의 북마크된 모든 단어 목록 조회
-    public BookmarksResponseDto getBookmarkByList(String userId) {
+    public BookmarksResponseDto getAllBookmarksByUser(String userId) {
         Users userEntity = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("해당 사용자가 존재하지 않습니다: " + userId));
 
-        List<Long> wordIdList = bookmarksRepository.findWordIdByUsers(userEntity);
+        List<Bookmarks> bookmarkList = bookmarksRepository.findByUsers(userEntity);
         List<String> result = new ArrayList<>();
 
-        for (Long id: wordIdList) {
-            String bookmarkedWord = wordsRepository.findWordByWordId(id);
-            result.add(bookmarkedWord);
+        for (Bookmarks b: bookmarkList) {
+            Words wordEntity = b.getWords();
+            result.add(wordEntity.getWord());
         }
 
         return new BookmarksResponseDto(result);
     }
 
     // 특정 단어가 해당 사용자에 의해 북마크 되어 있는지 확인
-    public boolean getBookmarkByWord(String userId, String word) {
+    public boolean isBookmarked(String userId, String word) {
         Users userEntity = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("해당 사용자가 존재하지 않습니다: " + userId));
         Words wordEntity = wordsRepository.findByWord(word)
