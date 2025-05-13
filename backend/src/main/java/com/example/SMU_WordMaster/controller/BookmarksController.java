@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 // 북마크 관련 요청을 처리하는 컨트롤러
 @RestController
 @RequestMapping("/api/bookmarks")
@@ -58,9 +60,9 @@ public class BookmarksController {
     @GetMapping("/getAllByUser")
     public ResponseEntity<?> getAllBookmarks(@RequestParam String userId) {
         try {
-            BookmarksResponseDto bookmarksDto = bookmarksService.getAllBookmarksByUser(userId);
+            List<BookmarksResponseDto> bookmarksList = bookmarksService.getAllBookmarksByUser(userId);
 
-            return ResponseEntity.ok(new SuccessResponseDto<>(true, "북마크된 단어 목록 불러오기 성공", bookmarksDto));
+            return ResponseEntity.ok(new SuccessResponseDto<>(true, "북마크된 단어 목록 불러오기 성공", bookmarksList));
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -76,9 +78,9 @@ public class BookmarksController {
             String userId = wordsDto.getUserId();
             String word = wordsDto.getWord();
 
-            BookmarksResponseDto bookmarksDto = bookmarksService.deleteBookmarkAndGetAll(userId, word);
+            List<BookmarksResponseDto> bookmarksList = bookmarksService.deleteBookmarkAndGetAll(userId, word);
 
-            return ResponseEntity.ok(new SuccessResponseDto<>(true, "북마크 삭제 성공", bookmarksDto));
+            return ResponseEntity.ok(new SuccessResponseDto<>(true, "북마크 삭제 성공", bookmarksList));
         }
         catch (Exception e) {
             e.printStackTrace();
