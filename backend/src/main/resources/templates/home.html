@@ -1,0 +1,23 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+<h1> Home Page!</h1>
+<!-- 로그인 상태에 따라 다른 문구 출력 -->
+<p th:text = "${message}"></p>
+
+<a href="/member/save">회원가입</a><div>
+    <!-- 로그인된 상태에서만 로그아웃 버튼을 표시 -->
+    <a href="/member/logout" th:if="${isLoggedIn}">로그아웃</a>
+
+    <!-- 로그인되지 않은 상태에서는 로그인 버튼만 표시 -->
+    <a href="/member/login" th:unless="${isLoggedIn}">로그인</a>
+</div>
+<a href="/member/">회원목록</a>
+<a href="/member/session">로그인 정보</a>
+
+</body>
+</html>
