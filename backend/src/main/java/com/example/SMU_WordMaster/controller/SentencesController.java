@@ -24,8 +24,7 @@ public class SentencesController {
     private static final String PROMPT_PREFIX = "아래의 영어 단어를 사용하여, 창의적인 예문을 하나 15단어 이내로 생성해줘.\n" +
                                                 "만약 아래에 주어진 예문이 있다면, 그 예문과는 중복되지 않는 예문을 생성해줘.\n" +
                                                 "[출력 포맷]: JSON 형식\n" +
-                                                "{sentence: 예문," +
-                                                "translation: 예문 뜻}";
+                                                "{word: 단어, sentence: 예문, translation: 예문 뜻}";
 
     // 1) GPT를 이용해 예문을 생성하고, 2) 테이블에 저장한 후, 3) 생성된 예문 + 뜻을 프론트엔드로 반환하는 API
     @PostMapping("/create")
@@ -68,10 +67,10 @@ public class SentencesController {
     }
 
     // 특정 사용자와 단어의 조합에 해당하는 예문 중 가장 최근에 생성된 예문을 프론트엔드로 반환하는 API
-    @GetMapping("/getByWord")
+    @GetMapping("/getRecentByWord")
     public ResponseEntity<?> getRecentSentenceByWord(@RequestParam String userId, @RequestParam String word) {
         try {
-            SentencesResponseDto sentenceDto = sentencesService.getLatestSentenceByWord(userId, word);
+            SentencesResponseDto sentenceDto = sentencesService.getRecentSentenceByWord(userId, word);
 
             return ResponseEntity.ok(new SuccessResponseDto<>(true, word + "에 대한 최신 예문 조회 성공", sentenceDto));
         }
@@ -83,7 +82,7 @@ public class SentencesController {
     }
 
     // 특정 사용자가 생성한 모든 예문을 프론트엔드로 반환하는 API
-    @GetMapping("/getAll")
+    @GetMapping("/getAllByUser")
     public ResponseEntity<?> getAllSentencesByUser(@RequestParam String userId) {
         try {
             List<SentencesResponseDto> sentencesList = sentencesService.getAllSentencesByUser(userId);

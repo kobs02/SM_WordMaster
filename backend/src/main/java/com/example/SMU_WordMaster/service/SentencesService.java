@@ -113,6 +113,7 @@ public class SentencesService {
         sentencesRepository.save(sentences);
     }
 
+    // 특정 사용자가 주어진 단어로 생성한 모든 예문을 SentencesResponseDto 리스트 형태로 반환
     public List<SentencesResponseDto> getAllSentencesByWord(String userId, String word) {
         Users userEntity = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("해당 사용자가 존재하지 않습니다: " + userId));
@@ -126,14 +127,14 @@ public class SentencesService {
             String sentence = s.getSentence();
             String translation = s.getTranslation();
 
-            result.add(new SentencesResponseDto(sentence, translation));
+            result.add(new SentencesResponseDto(word, sentence, translation));
         }
 
         return result;
     }
 
     // 특정 사용자, 단어 조합에 해당하는 예문 중 가장 최근에 생성된 예문을 SentencesResponseDto 형태로 반환
-    public SentencesResponseDto getLatestSentenceByWord(String userId, String word) {
+    public SentencesResponseDto getRecentSentenceByWord(String userId, String word) {
         Users userEntity = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("해당 사용자가 존재하지 않습니다: " + userId));
 
@@ -144,9 +145,11 @@ public class SentencesService {
 
         if (sentenceObj.isPresent()) {
             Sentences sentenceEntity = sentenceObj.get();
-            return new SentencesResponseDto(sentenceEntity.getSentence(), sentenceEntity.getTranslation());
+            String sentence = sentenceEntity.getSentence();
+            String translation = sentenceEntity.getTranslation();
+            return new SentencesResponseDto(word, sentence, translation);
         }
-        else return new SentencesResponseDto("", "");
+        else return new SentencesResponseDto("", "", "");
     }
 
     // 특정 사용자가 생성한 모든 예문을 SentenceResponseDto 리스트 형태로 반환
@@ -159,10 +162,12 @@ public class SentencesService {
         List<SentencesResponseDto> result = new ArrayList<>();
 
         for (Sentences s : sentencesList) {
+            Words wordEntity = s.getWords();
+            String word = wordEntity.getWord();
             String sentence = s.getSentence();
             String translation = s.getTranslation();
 
-            result.add(new SentencesResponseDto(sentence, translation));
+            result.add(new SentencesResponseDto(word, sentence, translation));
         }
 
         return result;
