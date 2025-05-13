@@ -79,7 +79,7 @@ public class SentencesService {
         return "";
     }
 
-    // 특정 사용자, 단어 조합의 예문이 20개를 초과하는 경우 가장 오래된 예문 삭제
+    // 특정 사용자, 단어 조합의 예문이 20개 이상인 경우 가장 오래된 예문 삭제
     public void deleteOldestSentenceIfOverLimit(String userId, String word) {
         Users userEntity = usersRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("해당 사용자가 존재하지 않습니다: " + userId));
@@ -87,7 +87,7 @@ public class SentencesService {
         Words wordEntity = wordsRepository.findByWord(word)
                 .orElseThrow(() -> new RuntimeException("해당 단어가 존재하지 않습니다: " + word));
 
-        if (sentencesRepository.countByUsersAndWords(userEntity, wordEntity) > 20) {
+        if (sentencesRepository.countByUsersAndWords(userEntity, wordEntity) >= 20) {
             Sentences sentenceEntity = sentencesRepository.findTopByUsersAndWordsOrderBySentenceId(userEntity, wordEntity).get();
             Long minId = sentenceEntity.getSentenceId();
 
