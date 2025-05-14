@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 public class SmuWordMasterApplication {
 	public static void main(String[] args) {
 		Dotenv dotenv = Dotenv.configure()
-				.directory("C:\\vscode\\SM_WordMaster\\backend\\")
+				.directory("C:\\Users\\jihyo\\바탕 화면\\SM_WordMaster\\backend")
 				.filename(".env")
 				.load();
 
