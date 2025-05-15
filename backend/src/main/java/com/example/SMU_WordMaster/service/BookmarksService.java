@@ -4,6 +4,7 @@ import com.example.SMU_WordMaster.dto.BookmarksResponseDto;
 import com.example.SMU_WordMaster.entity.Bookmarks;
 import com.example.SMU_WordMaster.entity.Users;
 import com.example.SMU_WordMaster.entity.Words;
+import com.example.SMU_WordMaster.entity.Level;
 import com.example.SMU_WordMaster.repository.BookmarksRepository;
 import com.example.SMU_WordMaster.repository.UsersRepository;
 import com.example.SMU_WordMaster.repository.WordsRepository;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 
 // 북마크 관련 내부 로직을 처리하는 서비스 클래스
 @Service
