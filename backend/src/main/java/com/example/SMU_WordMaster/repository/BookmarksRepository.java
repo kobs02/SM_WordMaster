@@ -1,12 +1,9 @@
 package com.example.SMU_WordMaster.repository;
 
-import com.example.SMU_WordMaster.dto.BookmarksResponseDto;
 import com.example.SMU_WordMaster.entity.Bookmarks;
 import com.example.SMU_WordMaster.entity.Users;
 import com.example.SMU_WordMaster.entity.Words;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
