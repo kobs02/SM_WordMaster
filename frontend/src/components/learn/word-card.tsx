@@ -67,20 +67,6 @@ export default function WordCard({ word, onBookmark }: WordCardProps) {
     setIsLoding(false);
   }, [word.word]);
 
-  const fetchIsBookmarked( () => async () {
-      try {
-          const response = fetch ("/api/bookmark/getByWord", {
-
-          })
-
-          if (response.ok) {
-
-          }
-      }
-      catch (error) {
-
-      }
-  }
 
   return (
     <Card className="w-full dark:border-gray-700">
