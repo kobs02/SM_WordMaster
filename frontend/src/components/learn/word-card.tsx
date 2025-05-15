@@ -1,48 +1,98 @@
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useAuth } from "@/lib/auth-context"
 import { Bookmark, RefreshCw } from "lucide-react"
-import type { Word } from "@/lib/types"
+import type { Word, Response } from "@/lib/types"
 
 interface WordCardProps {
   word: Word
   onBookmark: (wordId: string) => void
 }
 
-export default function WordCard({ word, onBookmark }: WordCardProps) {
-  const [example, setExample] = useState<string>("예문을 불러오는 중입니다...")
+type SentenceState = {
+  word: string
+  sentence: string
+  translation: string
+}
 
-  const fetchExample = async () => {
+export default function WordCard({ word, onBookmark }: WordCardProps) {
+  const { user } = useAuth(); // 구조 분해 필요 시 적용
+
+  const [isLoding, setIsLoding] = useState<boolean>(false);
+
+  const [sentenceData, setSentenceData] = useState<SentenceState>({
+    word: word.word,
+    sentence: "예문 생성 중입니다.",
+    translation: "",
+  });
+
+  const fetchSentence = async () => {
     try {
-      const response = await fetch("/api/gpt/create", {
+      const response = await fetch("/api/sentence/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ word: word.word }),
-      })
+        body: JSON.stringify({ "userId": user.userId, "word": word.word }),
+      });
 
       if (!response.ok) {
-        throw new Error("예문 생성 실패")
+        throw new Error("예문 생성 실패");
       }
 
-      const newExample: string = await response.text()
-      setExample(newExample)
+      const data: Response = await response.json();
+
+      if (data.success)
+          setSentenceData(data.data);
+      else
+          setSentenceData({
+              word: word.word,
+              sentence: data.message,
+              translation: "",
+          });
     } catch (error) {
-      setExample("예문을 가져오는 데 실패했어요.")
+      console.error("예문 생성 중 오류:", error);
+      setSentenceData({
+        word: word.word,
+        sentence: "예문을 가져오는 데 실패했어요.",
+        translation: "",
+      });
     }
-  }
+  };
 
   useEffect(() => {
-    fetchExample()
-  }, [word.word])
+      setIsLoding(true);
+    fetchSentence();
+    setIsLoding(false);
+  }, [word.word]);
+
+  const fetchIsBookmarked( () => async () {
+      try {
+          const response = fetch ("/api/bookmark/getByWord", {
+
+          })
+
+          if (response.ok) {
+
+          }
+      }
+      catch (error) {
+
+      }
+  }
 
   return (
     <Card className="w-full dark:border-gray-700">
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle className="text-2xl">{word.word}</CardTitle>
-          <Button variant="ghost" size="icon" onClick={() => onBookmark(word.id)} className="h-8 w-8">
+
+          <Button variant="ghost"
+          size="icon"
+          title="북마크"
+          onClick={() => onBookmark(word.id)}
+          className="h-8 w-8">
             <Bookmark
               className={`h-5 w-5 ${
                 word.bookmarked ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"
@@ -50,15 +100,16 @@ export default function WordCard({ word, onBookmark }: WordCardProps) {
             />
           </Button>
         </div>
-        <p className="text-xl dark:text-gray-200">{word.meaning}</p>
+        <p className="text-xl dark:text-gray-200">{word.mean}</p>
       </CardHeader>
+
       <CardContent className="space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-sm font-medium dark:text-gray-300">예문</h3>
           <Button
             variant="ghost"
             size="icon"
-            onClick={fetchExample}
+            onClick={fetchSentence}
             className="h-8 w-8"
             title="새 예문 보기"
           >
@@ -66,9 +117,10 @@ export default function WordCard({ word, onBookmark }: WordCardProps) {
           </Button>
         </div>
         <div className="p-4 bg-muted rounded-md dark:bg-gray-700 dark:text-gray-200">
-          <p>{example}</p>
+          <p>{sentenceData.sentence}</p>
+          <p>{sentenceData.translation}</p>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

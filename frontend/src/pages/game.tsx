@@ -7,7 +7,6 @@ import MultipleChoiceQuiz from "@/components/game/multiple-choice-quiz"
 import WritingQuiz from "@/components/game/writing-quiz"
 import ResultsTable from "@/components/game/results-table"
 import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
 
 type GameType = "multiple" | "writing"
 
@@ -121,8 +120,6 @@ export default function GamePage() {
           </div>
         )}
       </main>
-
-      <Footer />
     </div>
   )
 }

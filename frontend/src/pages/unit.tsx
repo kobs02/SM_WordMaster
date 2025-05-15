@@ -3,7 +3,6 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
 import type { CEFRLevel } from "@/lib/types"
 
 const MAX_UNIT = 5
@@ -63,8 +62,6 @@ export default function UnitPage() {
           ))}
         </Tabs>
       </main>
-
-      <Footer />
     </div>
   )
 }

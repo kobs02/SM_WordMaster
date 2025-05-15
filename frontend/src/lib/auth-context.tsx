@@ -5,7 +5,7 @@ import type { User } from "@/lib/types"
 interface AuthContextType {
   user: User | null
   isLoading: boolean
-  login: (username: string, password: string) => Promise<{ success: boolean; message: string }>
+  login: (userId: string, password: string) => Promise<{ success: boolean; message: string }>
   logout: () => void
 }
 
@@ -29,15 +29,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false)
   }, [])
 
-  const login = async (username: string, password: string) => {
+  const login = async (userId: string, password: string) => {
     // 실제 구현에서는 API 호출로 대체
-    const foundUser = mockUsers.find(
-      (u) => u.username.toLowerCase() === username.toLowerCase() && u.password === password,
+    const isUser = mockUsers.find(
+      (user) => user.userId === userId && user.password === password,
     )
 
-    if (foundUser) {
-      // 비밀번호는 저장하지 않음
-      const { password: _, ...userWithoutPassword } = foundUser
+    if (isUser) {
+      // userId가 PK이므로, 보안을 위해 비밀번호는 저장하지 않음
+      const { password: _, ...userWithoutPassword } = isUser
       setUser(userWithoutPassword)
       localStorage.setItem("user", JSON.stringify(userWithoutPassword))
       return { success: true, message: "로그인 성공" }

@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
 import { mockWords as initialWords } from "@/lib/mock-data"
 import WordCard from "@/components/learn/word-card"
 import { Button } from "@/components/ui/button"
@@ -111,8 +110,6 @@ export default function LearnPage() {
           </div>
         )}
       </main>
-
-      <Footer />
     </div>
   )
 }

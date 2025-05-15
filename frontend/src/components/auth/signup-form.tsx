@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card"
 export function SignupForm() {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
-    username: "",
+    userId: "",
     password: "",
     name: "",
   })
@@ -31,8 +31,14 @@ export function SignupForm() {
     <Card className="p-6">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="username">아이디</Label>
-          <Input id="username" name="username" type="text" required value={formData.username} onChange={handleChange} />
+          <Label htmlFor="userId">아이디</Label>
+          <Input id="userId"
+          name="userId"
+          type="text"
+          placeholder="아이디를 입력하세요."
+          required
+          value={formData.userId}
+          onChange={handleChange} />
         </div>
 
         <div className="space-y-2">
@@ -41,6 +47,7 @@ export function SignupForm() {
             id="password"
             name="password"
             type="password"
+            placeholder="비밀번호를 입력하세요."
             required
             value={formData.password}
             onChange={handleChange}
@@ -49,7 +56,13 @@ export function SignupForm() {
 
         <div className="space-y-2">
           <Label htmlFor="name">이름</Label>
-          <Input id="name" name="name" type="text" required value={formData.name} onChange={handleChange} />
+          <Input id="name"
+          name="name"
+          type="text"
+          placeholder="이름을 입력하세요."
+          required
+          value={formData.name}
+          onChange={handleChange} />
         </div>
 
         <Button type="submit" className="w-full">

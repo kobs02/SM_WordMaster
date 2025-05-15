@@ -4,7 +4,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
 import { mockWords } from "@/lib/mock-data"
 
 export default function WrongAnswersPage() {
@@ -104,8 +103,6 @@ export default function WrongAnswersPage() {
           </CardContent>
         </Card>
       </main>
-
-      <Footer />
     </div>
   )
 }

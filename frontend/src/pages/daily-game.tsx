@@ -6,7 +6,6 @@ import { mockWords } from "@/lib/mock-data"
 import WritingQuiz from "@/components/game/writing-quiz"
 import { Check, X } from "lucide-react"
 import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
 
 export default function DailyGamePage() {
   const navigate = useNavigate()
@@ -75,8 +74,6 @@ export default function DailyGamePage() {
           )}
         </Card>
       </main>
-
-      <Footer />
     </div>
   )
 }

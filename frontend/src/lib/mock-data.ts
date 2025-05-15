@@ -23,26 +23,20 @@ export const mockWords: Word[] = [
   { id: "20", word: "grammar", meaning: "문법", level: "A2", bookmarked: false },
 ]
 
-// 사용자 데이터 추가 (비밀번호는 실제 구현에서는 해시 처리되어야 함)
+// 사용자 데이터 예시
 export const mockUsers = [
   {
-    id: "1",
-    username: "admin",
+    userId: "admin",
     password: "admin123",
     name: "관리자",
-    role: "admin" as const,
+    userType: true as const,
     exp: 5000,
-    level: "C1" as const,
-    correctRate: 95,
   },
   {
-    id: "2",
-    username: "user",
-    password: "user123",
-    name: "일반사용자",
-    role: "user" as const,
-    exp: 2500,
-    level: "B1" as const,
-    correctRate: 80,
+    userId: "user002",
+    password: "pw5678",
+    name: "Bob",
+    userType: false as const,
+    exp: 500,
   },
 ]

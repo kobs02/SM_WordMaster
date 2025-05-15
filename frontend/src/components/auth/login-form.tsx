@@ -13,12 +13,12 @@ import { useAuth } from "@/lib/auth-context"
 export function LoginForm() {
   const navigate = useNavigate()
   const { login } = useAuth()
-  const [formData, setFormData] = useState({
-    username: "",
+  const [formData, setFormData] = useState<string[]>({
+    userId: "",
     password: "",
   })
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string>("")
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -31,7 +31,7 @@ export function LoginForm() {
     setIsLoading(true)
 
     try {
-      const result = await login(formData.username, formData.password)
+      const result = await login(formData.userId, formData.password)
 
       if (result.success) {
         navigate("/")
@@ -55,17 +55,26 @@ export function LoginForm() {
           </Alert>
         )}
 
+        {/*아이디 입력란*/}
         <div className="space-y-2">
-          <Label htmlFor="username">아이디</Label>
-          <Input id="username" name="username" type="text" required value={formData.username} onChange={handleChange} />
+          <Label htmlFor="userId">아이디</Label>
+          <Input id="userId"
+          name="userId"
+          type="text"
+          placeholder="아이디를 입력해주세요."
+          required
+          value={formData.userId}
+          onChange={handleChange} />
         </div>
 
+        {/*비밀번호 입력란*/}
         <div className="space-y-2">
           <Label htmlFor="password">비밀번호</Label>
           <Input
             id="password"
             name="password"
             type="password"
+            placeholder="비밀번호를 입력해주세요."
             required
             value={formData.password}
             onChange={handleChange}
@@ -83,11 +92,6 @@ export function LoginForm() {
           </Link>
         </div>
 
-        <div className="mt-4 p-3 bg-muted rounded-md">
-          <p className="text-sm font-medium mb-2">테스트 계정:</p>
-          <p className="text-xs">관리자: admin / admin123</p>
-          <p className="text-xs">사용자: user / user123</p>
-        </div>
       </form>
     </Card>
   )

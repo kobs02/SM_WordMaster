@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/lib/auth-context"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -14,8 +14,13 @@ import HistoryUnitButton from "@/components/history/history-unit-button"
 import HistoryGameButton from "@/components/history/history-game-button"
 import ExampleCard from "@/components/examples/example-card"
 import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-import type { Example } from "@/lib/types"
+import type { Sentence } from "@/lib/types"
+
+type sentenceState = {
+    word: string,
+    sentence: string,
+    translation: string,
+}
 
 export default function MyPage() {
   const navigate = useNavigate()
@@ -43,31 +48,48 @@ export default function MyPage() {
     }
   }
 
-
-  // 예문 데이터 (실제로는 API에서 가져와야 함)
-  const [examples, setExamples] = useState<Example[]>([
-    { id: "1", word: "apple", example: "I eat an apple every day." },
-    { id: "2", word: "apple", example: "The apple fell from the tree." },
-    { id: "3", word: "apple", example: "She gave me a red apple." },
-    { id: "4", word: "banana", example: "She likes to eat bananas for breakfast." },
-    { id: "5", word: "banana", example: "The banana was perfectly ripe." },
-    { id: "6", word: "computer", example: "I need to buy a new computer for work." },
-    { id: "7", word: "computer", example: "The computer crashed during the presentation." },
-    { id: "8", word: "education", example: "Education is important for personal growth." },
-    { id: "9", word: "vocabulary", example: "Expanding your vocabulary helps with language learning." },
-  ])
-
   // 단어별로 예문 그룹화
-  const groupedExamples = useMemo(() => {
-    const grouped: Record<string, Example[]> = {}
-    examples.forEach((example) => {
-      if (!grouped[example.word]) {
-        grouped[example.word] = []
+  const [sentenceList, setSentenceList] = useState<sentenceState[]> ([ {
+     word: "",
+     sentence: "",
+     translation: "",
+    },
+  ]);
+
+  const fetchSentence = async () => {
+      try {
+          const response = await fetch(`/api/sentence/getAllByUser?userId=${user.userId}`);
+
+          if (!response.ok)
+              throw new Error("예문 조회 실패");
+
+          const data: Response = await response.json();
+          console.log(data);
+
+          if (data.success)
+              setSentenceList(data.data);
+          else
+              setSentenceList([{
+                  word: "",
+                  sentence: "data.message",
+                  translation: "",
+                  },
+              ]);
       }
-      grouped[example.word].push(example)
-    })
-    return grouped
-  }, [examples])
+      catch (error) {
+          console.log("예문 조회 중 오류:", error);
+          setSentenceList([{
+              word: "",
+              sentence: "예문을 조회하는 데 실패했어요.",
+              translation: ""
+              },
+          ]);
+      }
+  }
+
+  useEffect(() => {
+      fetchSentence();
+  },[]);
 
   // 랭킹 데이터 (실제로는 API에서 가져와야 함)
   const rankings = [
@@ -384,10 +406,26 @@ export default function MyPage() {
                 <CardDescription>단어 학습 중 생성한 예문을 확인할 수 있습니다.</CardDescription>
               </CardHeader>
               <CardContent>
-                {Object.keys(groupedExamples).length > 0 ? (
+                {sentenceList.length > 0 ? (
                   <div className="space-y-4">
-                    {Object.entries(groupedExamples).map(([word, wordExamples]) => (
-                      <ExampleCard key={word} word={word} examples={wordExamples} />
+                    {Object.entries(
+                      sentenceList.reduce((acc, item) => {
+                        if (!acc[item.word]) acc[item.word] = []
+                        acc[item.word].push({
+                          id: `${item.word}-${acc[item.word].length}`,
+                          word: item.word,
+                          sentence: item.sentence,
+                          translation: item.translation,
+                        })
+                        return acc
+                      }, {} as Record<string, Sentence[]>)
+                    ).map(([word, examples]) => (
+                      <ExampleCard
+                        key={word}
+                        word={word}
+                        examples={examples}
+                        onRemove={() => {}} // 삭제 기능 미구현 시 빈 함수
+                      />
                     ))}
                   </div>
                 ) : (
@@ -449,8 +487,6 @@ export default function MyPage() {
           </TabsContent>
         </Tabs>
       </main>
-
-      <Footer />
     </div>
   )
 }

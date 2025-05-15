@@ -1,30 +1,34 @@
 export type CEFRLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2"
-export type UserRole = "user" | "admin"
 
 export interface Word {
   id: string
   word: string
-  meaning: string
+  mean: string
   level: CEFRLevel
-  bookmarked: boolean
 }
 
 export interface User {
-  id: string
-  username: string
+  userId: string
+  password?: string {/*로그인 시, id와의 매핑 여부만 검사하고, 그 이후로는 사용하지 않음*/}
   name: string
-  role: UserRole
+  userType: boolean {/*관리자면 1, 사용자면 0*/}
   exp: number
-  level: CEFRLevel
-  correctRate: number
-  password?: string // 클라이언트에 저장될 때는 제외됨
 }
 
-export interface Example {
+export interface Sentence {
   id: string
   word: string
-  example: string
+  sentence: string
+  translation: string
 }
+
+type Response<T> = {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message: string;
+};
+
 
 export interface LearningUnit {
   level: CEFRLevel | string
