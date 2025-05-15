@@ -133,25 +133,6 @@ public class SentencesService {
         return result;
     }
 
-    // 특정 사용자, 단어 조합에 해당하는 예문 중 가장 최근에 생성된 예문을 SentencesResponseDto 형태로 반환
-    public SentencesResponseDto getRecentSentenceByWord(String userId, String word) {
-        Users userEntity = usersRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("해당 사용자가 존재하지 않습니다: " + userId));
-
-        Words wordEntity = wordsRepository.findByWord(word)
-                .orElseThrow(() -> new RuntimeException("해당 단어가 존재하지 않습니다: " + word));
-
-        Optional<Sentences> sentenceObj = sentencesRepository.findTopByUsersAndWordsOrderBySentenceIdDesc(userEntity, wordEntity);
-
-        if (sentenceObj.isPresent()) {
-            Sentences sentenceEntity = sentenceObj.get();
-            String sentence = sentenceEntity.getSentence();
-            String translation = sentenceEntity.getTranslation();
-            return new SentencesResponseDto(word, sentence, translation);
-        }
-        else return new SentencesResponseDto("", "", "");
-    }
-
     // 특정 사용자가 생성한 모든 예문을 SentenceResponseDto 리스트 형태로 반환
     public List<SentencesResponseDto> getAllSentencesByUser(String userId) {
         Users userEntity = usersRepository.findById(userId)

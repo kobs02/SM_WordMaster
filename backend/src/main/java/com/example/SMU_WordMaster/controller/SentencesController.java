@@ -66,21 +66,6 @@ public class SentencesController {
 
     }
 
-    // 특정 사용자와 단어의 조합에 해당하는 예문 중 가장 최근에 생성된 예문을 프론트엔드로 반환하는 API
-    @GetMapping("/getRecentByWord")
-    public ResponseEntity<?> getRecentSentenceByWord(@RequestParam String userId, @RequestParam String word) {
-        try {
-            SentencesResponseDto sentenceDto = sentencesService.getRecentSentenceByWord(userId, word);
-
-            return ResponseEntity.ok(new SuccessResponseDto<>(true, word + "에 대한 최신 예문 조회 성공", sentenceDto));
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponseDto(false, word + "에 대한 최신 예문 조회 실패", e.getMessage()));
-        }
-    }
-
     // 특정 사용자가 생성한 모든 예문을 프론트엔드로 반환하는 API
     @GetMapping("/getAllByUser")
     public ResponseEntity<?> getAllSentencesByUser(@RequestParam String userId) {

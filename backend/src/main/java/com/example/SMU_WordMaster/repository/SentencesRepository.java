@@ -18,9 +18,6 @@ public interface SentencesRepository extends JpaRepository<Sentences, Long> {
     // 특정 사용자와 단어 조합으로 저장된 예문 리스트 조회
     List<Sentences> findByUsersAndWords(Users userEntity, Words wordEntity);
 
-    // 특정 사용자와 단어 조합으로 저장된 예문 중 가장 최근에 생성된 예문 엔티티 조회
-    Optional<Sentences> findTopByUsersAndWordsOrderBySentenceIdDesc(Users userEntity, Words wordEntity);
-
     // 특정 사용자와 단어 조합으로 저장된 예문 중 가장 오래된 예문 엔티티 조회
     Optional<Sentences> findTopByUsersAndWordsOrderBySentenceId(Users userEntity, Words wordEntity);
 
