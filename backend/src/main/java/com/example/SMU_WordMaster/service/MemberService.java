@@ -24,16 +24,16 @@ public class MemberService {
     }
 // 로그인 이메일 중복 검사 기능
     public boolean checkLoginIdDuplicate(String memberEmail) {
-        return memberRepository.existsBymemberEmail(memberEmail);
+        return memberRepository.existsByLoginId(memberEmail);
     }
 
 // 로그인 서비스
     public MemberDTO login(MemberDTO memberDTO){
-        Optional<MemberEntity> byMemberEmail = memberRepository.findByMemberEmail(memberDTO.getMemberEmail());
-        if(byMemberEmail.isPresent()){
+        Optional<MemberEntity> byLoginId = memberRepository.findByLoginId(memberDTO.getLoginId());
+        if(byLoginId.isPresent()){
             // 조회 결과가 있다
-            MemberEntity memberEntity = byMemberEmail.get(); // Optional에서 꺼냄
-            if(memberEntity.getMemberPassword().equals(memberDTO.getMemberPassword())) {
+            MemberEntity memberEntity = byLoginId.get(); // Optional에서 꺼냄
+            if(memberEntity.getPassword().equals(memberDTO.getPassword())) {
                 //비밀번호 일치
                 //entity -> dto 변환 후 리턴
                 MemberDTO dto = MemberDTO.toMemberDTO(memberEntity);

@@ -43,9 +43,9 @@ public class MemberController {
 
         // 로그인 성공 시, 사용자는 Email을 세션으로 부여받게 됨.
         if (loginResult != null) {
-            session.setAttribute("loginEmail", loginResult.getMemberEmail());
-            session.setAttribute("loginName", loginResult.getMemberName());
-            session.setAttribute("loginRole", loginResult.getMemberRole());
+            session.setAttribute("loginId", loginResult.getLoginId());
+            session.setAttribute("loginName", loginResult.getName());
+            session.setAttribute("loginRole", loginResult.getRole());
             return "session"; // session으로 이동
         }
         // login 실패 시, 로그인 화면에 머뭄

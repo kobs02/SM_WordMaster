@@ -9,7 +9,7 @@ public class HomeController {
     @GetMapping("/")
     public String home(HttpSession session, Model model) {
         // 세션에서 로그인된 이메일 정보 가져오기
-        String loginEmail = (String) session.getAttribute("loginEmail");
+        String loginEmail = (String) session.getAttribute("loginId");
         String loginName = (String) session.getAttribute("loginName");
 
         if (loginEmail != null) {

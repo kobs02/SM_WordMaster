@@ -14,18 +14,18 @@ import lombok.ToString;
 
 public class MemberDTO { //회원 정보를 필드로 정의
     private Long id;
-    private String memberEmail;
-    private String memberPassword;
-    private String memberName;
-    private MemberRole memberRole;
+    private String loginId;
+    private String password;
+    private String name;
+    private MemberRole role;
 
     public static MemberDTO toMemberDTO(MemberEntity memberEntity){
         MemberDTO memberDTO = new MemberDTO();
         memberDTO.setId(memberEntity.getId());
-        memberDTO.setMemberEmail(memberEntity.getMemberEmail());
-        memberDTO.setMemberName(memberEntity.getMemberName());
-        memberDTO.setMemberPassword(memberEntity.getMemberPassword());
-        memberDTO.setMemberRole(memberEntity.getMemberRole());
+        memberDTO.setLoginId(memberEntity.getLoginId());
+        memberDTO.setName(memberEntity.getName());
+        memberDTO.setPassword(memberEntity.getPassword());
+        memberDTO.setRole(memberEntity.getRole());
         return memberDTO;
     }
 }
