@@ -1,2 +1,6 @@
-# sm_wordmaster project
-wow
+CRUD
+
+CREATE
+READ
+UPDATE
+DELETE 입니다
