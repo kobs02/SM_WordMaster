@@ -18,4 +18,6 @@ public interface BookmarksRepository extends JpaRepository<Bookmarks, Long> {
 
     // 특정 사용자의 모든 북마크 리스트 조회
     List<Bookmarks> findByUsers(Users userEntity);
+
+    void deleteByUsersAndWords(Users userEntity, Words wordEntity);
 }
