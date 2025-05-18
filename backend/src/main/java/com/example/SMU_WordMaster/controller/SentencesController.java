@@ -4,6 +4,7 @@ import com.example.SMU_WordMaster.dto.ErrorResponseDto;
 import com.example.SMU_WordMaster.dto.SentencesResponseDto;
 import com.example.SMU_WordMaster.dto.SuccessResponseDto;
 import com.example.SMU_WordMaster.dto.WordsRequestDto;
+import com.example.SMU_WordMaster.entity.Sentences;
 import com.example.SMU_WordMaster.service.SentencesService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SentencesController {
     private final SentencesService sentencesService;
+    private final ControllerUtils utils;
 
     // GPT에 전달할 프롬프트 기본 형식
     private static final String PROMPT_PREFIX = "아래의 영어 단어를 사용하여, 창의적인 예문을 하나 15단어 이내로 생성해줘.\n" +
@@ -30,54 +32,38 @@ public class SentencesController {
     @PostMapping("/create")
     public ResponseEntity<?> createSentence(@RequestBody WordsRequestDto wordDto) {
         try {
-            String userId = wordDto.getUserId();
+            String email = wordDto.getEmail();
             String word = wordDto.getWord();
 
             // 기준 예문 목록 조회( 중복 방지용 )
-            List<SentencesResponseDto> sentencesList = sentencesService.getAllSentencesByWord(userId, word);
+            List<SentencesResponseDto> sentencesList = sentencesService.getAllSentencesByWord(email, word);
 
             // GPT에게 전달할 프롬프트 구성
             String prompt = "[영어 단어]: " + word + "\n[예문]: " + sentencesList;
-            String responseJson = sentencesService.getGptResponse(PROMPT_PREFIX + prompt);
 
-            // GPT 응답(JSON)을 객체로 변환
-            ObjectMapper mapper = new ObjectMapper();
-            SentencesResponseDto sentenceDto = mapper.readValue(responseJson, SentencesResponseDto.class);
+            SentencesResponseDto sentenceDto = sentencesService.getGptResponse(PROMPT_PREFIX + prompt, word);
 
             String sentence = sentenceDto.getSentence();
             String translation = sentenceDto.getTranslation();
 
-            // System.out.println(sentence);
-            // System.out.println(translation);
-
-            // 예문 20개 초과 시 가장 오래된 예문 삭제
-            sentencesService.deleteOldestSentenceIfOverLimit(userId, word);
+            // 예문이 20개 이상이면, 가장 오래된 예문 삭제
+            sentencesService.deleteOldestSentenceIfOverLimit(email, word);
 
             // 새로운 예문 저장
-            sentencesService.saveSentence(userId, word, sentence, translation);
+            sentencesService.saveSentence(email, word, sentence, translation);
 
-            return ResponseEntity.ok(new SuccessResponseDto<>(true, "예문 생성 성공", sentenceDto));
+            return ResponseEntity.ok(new SuccessResponseDto<>(true, "정상적으로 예문을 생성했습니다.", sentenceDto));
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponseDto(false, "예문 생성 실패", e.getMessage()));
-        }
-
+        catch (Exception e) { return utils.assertBySystem(e); }
     }
 
     // 특정 사용자가 생성한 모든 예문을 프론트엔드로 반환하는 API
     @GetMapping("/getAllByUser")
-    public ResponseEntity<?> getAllSentencesByUser(@RequestParam String userId) {
+    public ResponseEntity<?> getAllSentencesByUser(@RequestParam String email) {
         try {
-            List<SentencesResponseDto> sentencesList = sentencesService.getAllSentencesByUser(userId);
-
-            return ResponseEntity.ok(new SuccessResponseDto<>(true, "예문 전체 조회 성공", sentencesList));
+            List<SentencesResponseDto> sentencesList = sentencesService.getAllSentencesByUser(email);
+            return ResponseEntity.ok(new SuccessResponseDto<>(true, "정상적으로 예문 전체를 조회했습니다.", sentencesList));
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponseDto(false, "예문 전체 조회 실패", e.getMessage()));
-        }
+        catch (Exception e) { return utils.assertBySystem(e); }
     }
 }

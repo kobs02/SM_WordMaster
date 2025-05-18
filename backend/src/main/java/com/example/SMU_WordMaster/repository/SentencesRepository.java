@@ -23,4 +23,10 @@ public interface SentencesRepository extends JpaRepository<Sentences, Long> {
 
     // 특정 사용자가 생성한 모든 예문 리스트 조회
     List<Sentences> findByUsers(Users userEntity);
+
+    // 특정 사용자와 단어 조합으로 저장된 예문 존재 여부 조회
+    boolean existsByUsersAndWords(Users userEntity, Words wordEntity);
+
+    // 특정 사용자가 저장한 예문 존재 여부 조회
+    boolean existsByUsers(Users userEntity);
 }

@@ -11,4 +11,7 @@ import java.util.Optional;
 public interface WordsRepository extends JpaRepository<Words, Long> {
     // 주어진 단어에 해당하는 엔티티 조회
     Optional<Words> findByWord(String word);
+
+    // 해당 단어가 존재하는지 확인
+    boolean existsByWord(String word);
 }
