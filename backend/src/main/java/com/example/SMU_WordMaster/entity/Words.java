@@ -8,7 +8,7 @@ import lombok.ToString;
 import java.util.ArrayList;
 import java.util.List;
 
-// 단어 테이블 매핑용 엔티티
+// 단어 엔티티
 @Entity
 @Table( name = "words_table" )
 @Getter
