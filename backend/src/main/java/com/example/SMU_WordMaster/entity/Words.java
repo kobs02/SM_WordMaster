@@ -20,7 +20,7 @@ public class Words {
     @Column(name = "word_id")
     private Long wordId;
 
-    @Column(name = "word")
+    @Column(name = "spelling")
     private String word;
 
     @Column(name = "mean")
