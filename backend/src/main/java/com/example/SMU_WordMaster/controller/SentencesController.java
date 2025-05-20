@@ -1,7 +1,7 @@
 package com.example.SMU_WordMaster.controller;
 
 import com.example.SMU_WordMaster.dto.SentencesResponseDto;
-import com.example.SMU_WordMaster.dto.WordsRequestDto;
+import com.example.SMU_WordMaster.dto.SentencesRequestDto;
 import com.example.SMU_WordMaster.service.SentencesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ public class SentencesController {
 
     // 1) GPT를 이용해 예문을 생성하고, 2) 테이블에 저장한 후, 3) 생성된 예문 + 뜻을 프론트엔드로 반환하는 API
     @PostMapping("/create")
-    public ResponseEntity<?> createSentence(@RequestBody WordsRequestDto wordDto) {
+    public ResponseEntity<?> createSentence(@RequestBody SentencesRequestDto wordDto) {
         try {
             String email = wordDto.getEmail();
             String word = wordDto.getWord();
