@@ -12,6 +12,8 @@ import java.util.Optional;
 
 // 사용자가 생성한 영어 예문을 조회 및 관리하는 JPA 리포지토리
 public interface SentencesRepository extends JpaRepository<Sentences, Long> {
+    int countByUsersAndWords(Users userEntity, Words wordEntity);
+
     // 특정 사용자와 단어 조합으로 저장된 예문 리스트 조회
     List<Sentences> findByUsersAndWords(Users userEntity, Words wordEntity);
 

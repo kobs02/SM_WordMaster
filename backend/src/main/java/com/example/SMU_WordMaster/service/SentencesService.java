@@ -80,9 +80,13 @@ public class SentencesService {
             // content 파싱
             String content = (String) messageObj.get("content");
 
+            System.out.println(content);
+
             ObjectMapper mapper = new ObjectMapper();
             SentencesResponseDto sentenceDto = mapper.readValue(content, SentencesResponseDto.class);
             sentenceDto.setWord(word);
+
+            System.out.println(sentenceDto);
 
             return sentenceDto;
 
@@ -97,10 +101,12 @@ public class SentencesService {
         Words wordEntity = utils.getWordsEntity(word);
 
         try {
-            Sentences sentenceEntity = utils.getSentencesEntity(userEntity, wordEntity);
-            Long minId = sentenceEntity.getSentenceId();
+            if (sentencesRepository.countByUsersAndWords(userEntity, wordEntity) >= 20) {
+                Sentences sentenceEntity = utils.getSentencesEntity(userEntity, wordEntity);
+                Long minId = sentenceEntity.getSentenceId();
 
-            sentencesRepository.deleteById(minId);
+                sentencesRepository.deleteById(minId);
+            }
         }
         catch (Exception e) { throw new SentenceDeleteFailedException(e); }
     }

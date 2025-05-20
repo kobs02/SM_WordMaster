@@ -21,7 +21,7 @@ public class SentencesController {
     private static final String PROMPT_PREFIX = "아래의 영어 단어를 사용하여, 창의적인 예문을 하나 15단어 이내로 생성해줘.\n" +
                                                 "만약 아래에 주어진 예문이 있다면, 그 예문과는 중복되지 않는 예문을 생성해줘.\n" +
                                                 "[출력 포맷]: JSON 형식\n" +
-                                                "{word: 단어, sentence: 예문, translation: 예문 뜻}";
+                                                "{\"word\": 단어, \"sentence\": 예문, \"translation\": 예문 뜻}";
 
     // 1) GPT를 이용해 예문을 생성하고, 2) 테이블에 저장한 후, 3) 생성된 예문 + 뜻을 프론트엔드로 반환하는 API
     @PostMapping("/create")

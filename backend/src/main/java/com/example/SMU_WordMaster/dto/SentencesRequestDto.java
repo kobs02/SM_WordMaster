@@ -8,6 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SentencesRequestDto {
-    private String Email;
+    private String email;
     private String word;
 }

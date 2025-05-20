@@ -25,7 +25,7 @@ public class ServiceUtils {
     private final SentencesRepository sentencesRepository;
 
     public Users getUserEntity(String email) {
-        return usersRepository.findById(email)
+        return usersRepository.findByEmail(email)
                 .orElseThrow(() -> new EmailNotFoundException(email));
     }
 
