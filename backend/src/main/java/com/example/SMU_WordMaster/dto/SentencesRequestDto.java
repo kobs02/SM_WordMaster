@@ -7,7 +7,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class WordsRequestDto {
+public class SentencesRequestDto {
     private String Email;
     private String word;
 }
