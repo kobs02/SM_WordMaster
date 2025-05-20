@@ -2,6 +2,7 @@ package com.example.SMU_WordMaster.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -18,7 +19,7 @@ public class Rankings {
     private Long rankingId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "login_id")
+    @JoinColumn(name = "id")
     private Users users;
 
     @Enumerated(EnumType.STRING)

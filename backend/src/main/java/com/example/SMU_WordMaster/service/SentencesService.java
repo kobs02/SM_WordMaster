@@ -5,8 +5,7 @@ import com.example.SMU_WordMaster.dto.SuccessResponseDto;
 import com.example.SMU_WordMaster.entity.Sentences;
 import com.example.SMU_WordMaster.entity.Users;
 import com.example.SMU_WordMaster.entity.Words;
-import com.example.SMU_WordMaster.exception.InsufficientSentencesException;
-import com.example.SMU_WordMaster.exception.SentencesNotFoundByWordException;
+import com.example.SMU_WordMaster.exception.*;
 import com.example.SMU_WordMaster.repository.SentencesRepository;
 import com.example.SMU_WordMaster.repository.UsersRepository;
 import com.example.SMU_WordMaster.repository.WordsRepository;
@@ -93,77 +92,55 @@ public class SentencesService {
     }
 
     // 해당 사용자, 단어 조합의 예문이 20개 이상인 경우 가장 오래된 예문 삭제
-    public boolean deleteOldestSentenceIfOverLimit(String email, String word) {
-        // 사용자가 존재하지 않는 경우 예외 처리
+    public void deleteOldestSentenceIfOverLimit(String email, String word) {
         Users userEntity = utils.getUserEntity(email);
-
-        // 단어가 존재하지 않는 경우 예외 처리
         Words wordEntity = utils.getWordsEntity(word);
 
-        // 대안 흐름: 해당 단어에 대한 예문이 20개 미만인 경우
-        if (sentencesRepository.countByUsersAndWords(userEntity, wordEntity) < 20) { return false; }
+        try {
+            Sentences sentenceEntity = utils.getSentencesEntity(userEntity, wordEntity);
+            Long minId = sentenceEntity.getSentenceId();
 
-        // 정상 흐름
-        Sentences sentenceEntity = utils.getSentencesEntity(userEntity, wordEntity);
-        Long minId = sentenceEntity.getSentenceId();
-
-        sentencesRepository.deleteById(minId);
-
-        return true;
+            sentencesRepository.deleteById(minId);
+        }
+        catch (Exception e) { throw new SentenceDeleteFailedException(e); }
     }
 
     // 주어진 사용자와 단어에 해당하는 예문 1개를 예문 엔티티에 저장
-    public boolean saveSentence(String email, String word, String sentence, String translation) {
-        // 사용자가 존재하지 않는 경우 예외 처리
+    public void saveSentence(String email, String word, String sentence, String translation) {
         Users userEntity = utils.getUserEntity(email);
-
-        // 단어가 존재하지 않는 경우 예외 처리
         Words wordEntity = utils.getWordsEntity(word);
 
-        // 예문이 null값인 경우 예외 처리
         if (sentence == null || sentence.isBlank()) { throw new IllegalArgumentException("해당 예문은 null이거나 비어 있습니다"); }
-
-        // 예문 뜻이 null값인 경우 예외 처리
         if (translation == null || translation.isBlank()) { throw new IllegalArgumentException("해당 예문 뜻은 null이거나 비어 있습니다"); }
 
-        // 정상 흐름
-        Sentences sentences = new Sentences();
+        try {
+            Sentences sentences = new Sentences();
 
-        sentences.setUsers(userEntity);
-        sentences.setWords(wordEntity);
-        sentences.setSentence(sentence);
-        sentences.setTranslation(translation);
+            sentences.setUsers(userEntity);
+            sentences.setWords(wordEntity);
+            sentences.setSentence(sentence);
+            sentences.setTranslation(translation);
 
-        sentencesRepository.save(sentences);
-
-        return true;
+            sentencesRepository.save(sentences);
+        }
+        catch (Exception e) { throw new SentenceSaveFailedException(e); }
     }
 
     // 해당 사용자가 주어진 단어로 생성한 모든 예문을 SentencesResponseDto 리스트 형태로 반환
     public List<SentencesResponseDto> getAllSentencesByWord(String email, String word) {
-        // 사용자가 존재하지 않는 경우 예외 처리
         Users userEntity = utils.getUserEntity(email);
-
-        // 단어가 존재하지 않는 경우 예외 처리
         Words wordEntity = utils.getWordsEntity(word);
 
-        // 대안 흐름: 사용자가 생성한 예문이 없는 경우
-        if (!sentencesRepository.existsByUsersAndWords(userEntity, wordEntity))
-            return new ArrayList<>();
-
-        // 정상 흐름
-        return utils.getSentencesList(userEntity, wordEntity);
+        try { return utils.getSentencesList(userEntity, wordEntity); }
+        catch (Exception e) { throw new SentencesFindFailedException(email, word, e); }
     }
 
     // 해당 사용자가 생성한 모든 예문을 SentenceResponseDto 리스트 형태로 반환
     public List<SentencesResponseDto> getAllSentencesByUser(String email) {
-        // 사용자가 없는 경우 예외 처리
         Users userEntity = utils.getUserEntity(email);
 
-        // 대안 흐름: 해당 사용자가 생성한 예문이 없는 경우
-        if (!sentencesRepository.existsByUsers(userEntity)) { return new ArrayList<>(); }
+        try { return utils.getSentencesList(userEntity, null); }
+        catch (Exception e) { throw new SentencesFindFailedException(email, e); }
 
-        // 정상 흐름
-        return utils.getSentencesList(userEntity, null);
     }
 }

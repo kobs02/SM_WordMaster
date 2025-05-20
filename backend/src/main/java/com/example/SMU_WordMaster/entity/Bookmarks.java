@@ -19,7 +19,7 @@ public class Bookmarks {
     private Long bookmarkId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "login_id")
+    @JoinColumn(name = "id")
     private Users users;
 
     @ManyToOne(fetch = FetchType.LAZY)

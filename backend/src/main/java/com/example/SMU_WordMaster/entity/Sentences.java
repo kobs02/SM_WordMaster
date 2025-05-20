@@ -19,7 +19,7 @@ public class Sentences {
     private Long sentenceId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "login_id")
+    @JoinColumn(name = "id")
     private Users users;
 
     @ManyToOne(fetch = FetchType.LAZY)

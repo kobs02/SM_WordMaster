@@ -1,14 +1,9 @@
 package com.example.SMU_WordMaster.controller;
 
-import com.example.SMU_WordMaster.dto.ErrorResponseDto;
 import com.example.SMU_WordMaster.dto.SentencesResponseDto;
-import com.example.SMU_WordMaster.dto.SuccessResponseDto;
 import com.example.SMU_WordMaster.dto.WordsRequestDto;
-import com.example.SMU_WordMaster.entity.Sentences;
 import com.example.SMU_WordMaster.service.SentencesService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,7 +47,7 @@ public class SentencesController {
             // 새로운 예문 저장
             sentencesService.saveSentence(email, word, sentence, translation);
 
-            return ResponseEntity.ok(new SuccessResponseDto<>(true, "정상적으로 예문을 생성했습니다.", sentenceDto));
+            return utils.getSuccessResponse("정상적으로 예문을 생성했습니다.", sentenceDto);
         }
         catch (Exception e) { return utils.assertBySystem(e); }
     }
@@ -62,7 +57,7 @@ public class SentencesController {
     public ResponseEntity<?> getAllSentencesByUser(@RequestParam String email) {
         try {
             List<SentencesResponseDto> sentencesList = sentencesService.getAllSentencesByUser(email);
-            return ResponseEntity.ok(new SuccessResponseDto<>(true, "정상적으로 예문 전체를 조회했습니다.", sentencesList));
+            return utils.getSuccessResponse("정상적으로 예문 전체를 조회했습니다.", sentencesList);
         }
         catch (Exception e) { return utils.assertBySystem(e); }
     }
