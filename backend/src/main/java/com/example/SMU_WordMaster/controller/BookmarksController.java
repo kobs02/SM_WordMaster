@@ -31,7 +31,7 @@ public class BookmarksController {
 
             String message = isBookmarked ? "추가" : "삭제";
 
-            return ResponseEntity.ok(new SuccessResponseDto<>(true, "정상적으로 북마크 " + message + "했습니다.", null));
+            return utils.getSuccessResponse("정상적으로 북마크 " + message + "했습니다.", null);
         }
         catch (Exception e) { return utils.assertBySystem(e); }
     }
@@ -44,7 +44,7 @@ public class BookmarksController {
 
             String data = isBookmarked ? "북마크 추가되어 있음" : "북마크 제거되어 있음";
 
-            return ResponseEntity.ok(new SuccessResponseDto<>(true, "정상적으로 북마크 상태를 불러왔습니다.", data));
+            return utils.getSuccessResponse("정상적으로 북마크 상태를 불러왔습니다.", data);
         } catch (Exception e) { return utils.assertBySystem(e); }
     }
 
@@ -53,7 +53,7 @@ public class BookmarksController {
     public ResponseEntity<?> getAllBookmarks(@RequestParam String email) {
         try {
             List<BookmarksResponseDto> bookmarksList = bookmarksService.getAllBookmarksByUser(email);
-            return ResponseEntity.ok(new SuccessResponseDto<>(true, "북마크된 단어 목록 불러오기 성공", bookmarksList));
+            return utils.getSuccessResponse("북마크된 단어 목록 불러오기 성공", bookmarksList);
         }
         catch (Exception e) { return utils.assertBySystem(e); }
     }
@@ -67,7 +67,7 @@ public class BookmarksController {
 
             List<BookmarksResponseDto> bookmarksList = bookmarksService.deleteBookmarkAndGetAll(email, word);
 
-            return ResponseEntity.ok(new SuccessResponseDto<>(true, "북마크 삭제 성공", bookmarksList));
+            return utils.getSuccessResponse("북마크 삭제 성공", bookmarksList);
         }
         catch (Exception e) { return utils.assertBySystem(e); }
     }
