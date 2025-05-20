@@ -19,7 +19,7 @@ public class Rankings {
     private Long rankingId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "login_id")
+    @JoinColumn(name = "id")
     private Users users;
 
     @Enumerated(EnumType.STRING)

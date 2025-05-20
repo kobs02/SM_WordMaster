@@ -16,6 +16,10 @@ import java.util.List;
 @ToString
 public class Users {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long userId;
+
     @Column(name = "login_id")
     private String email;
 
