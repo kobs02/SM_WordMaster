@@ -32,7 +32,7 @@ export default function AdminDashboard() {
   const [words, setWords] = useState(mockWords)
   const [selectedWords, setSelectedWords] = useState<string[]>([])
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [newWords, setNewWords] = useState<Array<{ word: string; meaning: string; level: CEFRLevel }>>([])
+  const [newWords, setNewWords] = useState<Array<{ word: string; mean: string; level: CEFRLevel }>>([])
   const [editingWordId, setEditingWordId] = useState<string | null>(null)
   const [editValue, setEditValue] = useState("")
 
@@ -63,7 +63,7 @@ export default function AdminDashboard() {
     const wordsToAdd = newWords.map((word, index) => ({
       id: `new-${Date.now()}-${index}`,
       word: word.word,
-      meaning: word.meaning,
+      mean: word.mean,
       level: word.level,
       bookmarked: false,
     }))
@@ -74,7 +74,7 @@ export default function AdminDashboard() {
   }
 
   const handleAddWordField = () => {
-    setNewWords([...newWords, { word: "", meaning: "", level: "A1" }])
+    setNewWords([...newWords, { word: "", mean: "", level: "A1" }])
   }
 
   const updateNewWord = (index: number, field: string, value: string) => {
@@ -83,12 +83,12 @@ export default function AdminDashboard() {
     setNewWords(updatedWords)
   }
 
-  const handleDoubleClick = (wordId: string, field: "word" | "meaning", value: string) => {
+  const handleDoubleClick = (wordId: string, field: "word" | "mean", value: string) => {
     setEditingWordId(wordId)
     setEditValue(value)
   }
 
-  const handleEditSave = (wordId: string, field: "word" | "meaning") => {
+  const handleEditSave = (wordId: string, field: "word" | "mean") => {
     setWords(words.map((word) => (word.id === wordId ? { ...word, [field]: editValue } : word)))
     setEditingWordId(null)
     setEditValue("")
@@ -169,8 +169,8 @@ export default function AdminDashboard() {
                       <div className="col-span-5">
                         <Input
                           placeholder="한글 뜻"
-                          value={word.meaning}
-                          onChange={(e) => updateNewWord(index, "meaning", e.target.value)}
+                          value={word.mean}
+                          onChange={(e) => updateNewWord(index, "mean", e.target.value)}
                           className="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
                         />
                       </div>
@@ -259,7 +259,7 @@ export default function AdminDashboard() {
                   )}
                 </TableCell>
                 <TableCell
-                  onDoubleClick={() => handleDoubleClick(word.id, "meaning", word.meaning)}
+                  onDoubleClick={() => handleDoubleClick(word.id, "mean", word.mean)}
                   className="cursor-pointer dark:text-gray-300"
                 >
                   {editingWordId === word.id ? (
@@ -268,14 +268,14 @@ export default function AdminDashboard() {
                       onChange={(e) => setEditValue(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
-                          handleEditSave(word.id, "meaning")
+                          handleEditSave(word.id, "mean")
                         }
                       }}
                       autoFocus
                       className="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
                     />
                   ) : (
-                    word.meaning
+                    word.mean
                   )}
                 </TableCell>
                 <TableCell className="dark:text-gray-300">{word.level}</TableCell>

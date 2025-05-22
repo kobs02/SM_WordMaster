@@ -339,7 +339,7 @@ export default function MyPage() {
                               />
                             </TableCell>
                             <TableCell className="font-medium dark:text-gray-300">{word.word}</TableCell>
-                            <TableCell className="dark:text-gray-300">{word.meaning}</TableCell>
+                            <TableCell className="dark:text-gray-300">{word.mean}</TableCell>
                             <TableCell className="dark:text-gray-300">{word.level}</TableCell>
                             <TableCell>
                               <Button

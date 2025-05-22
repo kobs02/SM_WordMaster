@@ -79,7 +79,7 @@ export default function WrongAnswersPage() {
                           />
                         </TableCell>
                         <TableCell className="font-medium">{word.word}</TableCell>
-                        <TableCell>{word.meaning}</TableCell>
+                        <TableCell>{word.mean}</TableCell>
                         <TableCell>{word.level}</TableCell>
                         <TableCell>{Math.floor(Math.random() * 5) + 1}</TableCell>
                       </TableRow>

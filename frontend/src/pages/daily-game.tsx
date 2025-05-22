@@ -7,16 +7,49 @@ import WritingQuiz from "@/components/game/writing-quiz"
 import { Check, X } from "lucide-react"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
+import type { Word } from "@/lib/types"
 
 export default function DailyGamePage() {
   const navigate = useNavigate()
-  const [dailyWord, setDailyWord] = useState(mockWords[Math.floor(Math.random() * mockWords.length)])
+  const [dailyWord, setDailyWord] = useState<Word | null>(null)
+  // const [dailyWord, setDailyWord] = useState(mockWords[Math.floor(Math.random() * mockWords.length)])
   const [isAnswered, setIsAnswered] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
 
+  /*
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * mockWords.length)
     setDailyWord(mockWords[randomIndex])
+  }, [])
+  */
+
+  useEffect(() => {
+    const fetchRandomWord = async () => {
+      const levels = ["A1", "A2", "B1", "B2"]
+      const units = [1, 2]
+      const randomLevel = levels[Math.floor(Math.random() * levels.length)]
+      const randomUnit = units[Math.floor(Math.random() * units.length)]
+
+      console.log("📡 fetch 시작:", randomLevel, randomUnit)
+
+      try {
+        const res = await fetch(`/api/words/by-level-unit?level=${randomLevel}&unit=${randomUnit}`)
+        const data: Word[] = await res.json()
+
+        // 디버깅용 코드
+        console.log("🔍 백엔드에서 받은 단어 데이터:", data) // ✅ 여기 추가
+
+        if (data.length > 0) {
+          const randomIndex = Math.floor(Math.random() * data.length)
+          setDailyWord(data[randomIndex])
+        } else {
+          console.warn("선택된 레벨/유닛에 단어 없음")
+        }
+      } catch (error) {
+        console.error("단어 요청 실패:", error)
+      }
+    }
+    fetchRandomWord()
   }, [])
 
   const handleAnswer = (correct: boolean) => {
@@ -70,7 +103,7 @@ export default function DailyGamePage() {
         )}
 
         <Card className="p-6">
-          {!isAnswered && (
+          {!isAnswered && dailyWord && (
             <WritingQuiz word={dailyWord} onAnswer={handleAnswer} isLast />
           )}
         </Card>
