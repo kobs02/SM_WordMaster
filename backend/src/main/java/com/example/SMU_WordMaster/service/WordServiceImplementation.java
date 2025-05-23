@@ -37,9 +37,11 @@ public class WordServiceImplementation implements WordService {
             return wordRepository.save(existingWord);
         }).orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다."));
     }
-
+    // 단어 삭제
     @Override
     public void deleteWord(Long id) {
-        wordRepository.deleteById(id);
+        Word word = wordRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("단어를 찾을 수 없습니다."));
+        wordRepository.delete(word);  // deleteById가 아닌 delete(word) 사용
     }
 }

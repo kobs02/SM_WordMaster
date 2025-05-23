@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="">
+<head>
+  <title>단어장 CRUD</title>
+  <meta charset="UTF-8"/>
+</head>
+<body>
+<h1>📘 단어장 관리</h1>
+
+<!-- 단어 등록 폼 -->
+<form th:action="@{/words}" method="post">
+  <label>단어: <input type="text" name="word" required/></label><br/>
+  <label>뜻: <input type="text" name="mean" required/></label><br/>
+  <label>레벨:
+    <select name="level">
+      <option value="A1">A1</option>
+      <option value="A2">A2</option>
+      <option value="B1">B1</option>
+      <option value="B2">B2</option>
+      <option value="C1">C1</option>
+      <option value="C2">C2</option>
+    </select>
+  </label><br/>
+  <button type="submit">단어 추가</button>
+</form>
+
+<hr/>
+
+<!-- 등록된 단어 목록 -->
+<h2>📄 등록된 단어들</h2>
+<table border="1">
+  <tr>
+    <th>ID</th>
+    <th>단어</th>
+    <th>뜻</th>
+    <th>레벨</th>
+    <th>삭제</th>
+  </tr>
+  <tr th:each="word : ${words}">
+    <td th:text="${word.id}">1</td>
+    <td th:text="${word.word}">hello</td>
+    <td th:text="${word.mean}">안녕하세요</td>
+    <td th:text="${word.level}">A1</td>
+    <td>
+      <form th:action="@{/words/delete/{id}(id=${word.id})}" method="post">
+        <button type="submit">삭제</button>
+      </form>
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

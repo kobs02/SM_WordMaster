@@ -2,6 +2,7 @@ package com.example.SMU_WordMaster.controller;
 import com.example.SMU_WordMaster.entity.Word;
 import com.example.SMU_WordMaster.service.WordService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,13 +34,18 @@ public class WordController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Word> updateWord(@PathVariable Long id, @RequestBody Word word) {
+    public ResponseEntity<Word> updateWord(@PathVariable("id") Long id, @RequestBody Word word) {
         return ResponseEntity.ok(wordService.updateWord(id, word));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteWord(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteWord(@PathVariable("id") Long id) {
         wordService.deleteWord(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 }
