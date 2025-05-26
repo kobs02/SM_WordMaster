@@ -1,0 +1,127 @@
+/* AdminDashboard.css */
+
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 1rem;
+    font-family: Arial, sans-serif;
+}
+
+.container h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    color: #333;
+}
+
+/* 단어 리스트 테이블 */
+.word-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+}
+
+.word-table th,
+.word-table td {
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    text-align: left;
+}
+
+.word-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.word-table tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.word-table tr:hover {
+    background-color: #f0f8ff;
+}
+
+/* 페이지네이션 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.pagination button {
+    margin: 0 0.25rem;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.pagination button:hover {
+    background-color: #d5d5d5;
+}
+
+.pagination button.active {
+    background-color: #1976d2;
+    color: #fff;
+}
+
+/* 폼(단어 추가/수정) */
+form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    align-items: center;
+}
+
+form input,
+form select {
+    flex: 1;
+    min-width: 150px;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+form button {
+    padding: 0.5rem 1rem;
+    border: none;
+    background-color: #1976d2;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+form button:hover {
+    background-color: #1565c0;
+}
+
+/* 수정/삭제 버튼 별도 강조 (선택사항) */
+.word-table button {
+    padding: 0.25rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.word-table button:first-of-type {
+    background-color: #ffd54f;
+    color: #333;
+}
+
+.word-table button:first-of-type:hover {
+    background-color: #ffca28;
+}
+
+.word-table button:last-of-type {
+    background-color: #e57373;
+    color: #fff;
+}
+
+.word-table button:last-of-type:hover {
+    background-color: #ef5350;
+}
