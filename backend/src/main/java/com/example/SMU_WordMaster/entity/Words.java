@@ -21,7 +21,7 @@ public class Words {
     private Long wordId;
 
     @Column(name = "spelling")
-    private String word;
+    private String spelling;
 
     @Column(name = "mean")
     private String mean;
@@ -37,4 +37,8 @@ public class Words {
     // Sentences 연관관계 (1:N)
     @OneToMany(mappedBy = "words", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Sentences> sentences = new ArrayList<>();
+
+    // WrongAnswers 연관관계 (1:N)
+    @OneToMany(mappedBy = "words", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WrongAnswers> wrongAnswers = new ArrayList<>();
 }
