@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
+import { useNavigate } from "react-router-dom"
 import type { CEFRLevel } from "@/lib/types"
 
 interface WordUnitProps {
@@ -8,13 +8,13 @@ interface WordUnitProps {
 }
 
 export default function WordUnit({ level, unitNumber }: WordUnitProps) {
-  const router = useRouter()
+  const router = useNavigate();
 
   return (
     <Button
       variant="outline"
       className="h-24 text-lg"
-      onClick={() => router.push(`/learn/${level}/unit/${unitNumber}`)}
+      onClick={() => router(`/learn/${level}/unit/${unitNumber}`)}
     >
       Unit {unitNumber}
     </Button>

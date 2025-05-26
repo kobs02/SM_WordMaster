@@ -7,6 +7,7 @@ import { Check, X } from "lucide-react"
 import { Header } from "@/components/layout/header"
 import { useAuth } from "@/lib/auth-context"
 import type { Word } from "@/lib/types"
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 export default function DailyGamePage() {
   const navigate = useNavigate()
@@ -26,7 +27,7 @@ export default function DailyGamePage() {
       console.log("📡 fetch 시작:", randomLevel, randomUnit)
 
       try {
-        const res = await fetch(`/api/words/by-level-unit?level=${randomLevel}&unit=${randomUnit}`)
+        const res = await fetch(`${baseURL}/api/words/by-level-unit?level=${randomLevel}&unit=${randomUnit}`)
         const data: Word[] = await res.json()
 
         console.log("🔍 백엔드에서 받은 단어 데이터:", data)
@@ -50,7 +51,7 @@ export default function DailyGamePage() {
     const spellingList = wrongWords.map((word) => word.spelling)
 
     try {
-      const res = await fetch("/api/wrongAnswers", {
+      const res = await fetch(`${baseURL}/api/wrongAnswers`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -77,7 +78,7 @@ export default function DailyGamePage() {
       const wordLevelList = allWords.map((word) => word.level)
 
       try {
-        const res = await fetch("/api/ranking/update", {
+        const res = await fetch(`${baseURL}/api/ranking/update`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ loginId: user.loginId, wordLevelList }),

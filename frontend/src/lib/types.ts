@@ -1,7 +1,7 @@
 export type CEFRLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2"
 
 export interface Word {
-  id: string
+  wordId: number
   spelling: string
   mean: string
   level: CEFRLevel
@@ -28,6 +28,8 @@ export type ApiResponse<T> = {
   message: string;
 };
 
+// 혹은 alias 추가
+export type Response<T> = ApiResponse<T>;
 
 export interface LearningUnit {
   level: CEFRLevel | string

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth-context";
 import { Bookmark, RefreshCw } from "lucide-react";
 import type { Word, Response } from "@/lib/types";
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 interface WordCardProps {
   word: Word;
@@ -27,11 +28,13 @@ export default function WordCard({ word }: WordCardProps) {
 
   // ✅ 북마크 상태 확인
   useEffect(() => {
+      if (!user) return;
+
     const fetchBookmarkStatus = async () => {
       try {
         const res = await fetch(
-          `/api/bookmarks/isBookmarked?loginId=${encodeURIComponent(
-            user.loginId
+          `${baseURL}/api/bookmarks/isBookmarked?loginId=${encodeURIComponent(
+            user?.loginId
           )}&spelling=${encodeURIComponent(word.spelling)}`
         );
         const json = await res.json();
@@ -44,19 +47,19 @@ export default function WordCard({ word }: WordCardProps) {
     };
 
     fetchBookmarkStatus();
-  }, [word.spelling, user.loginId]);
+  }, [word.spelling, user?.loginId]);
 
   // ✅ 북마크 토글
   const handleBookmarkToggle = async () => {
     try {
+        if (!user) return;
       // 먼저 optimistic UI 업데이트
       setBookmarked((prev) => !prev);
-
-      const res = await fetch("/api/bookmarks/toggle", {
+      const res = await fetch(`${baseURL}/api/bookmarks/toggle`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          loginId: user.loginId,
+          loginId: user?.loginId,
           spelling: word.spelling,
         }),
       });
@@ -72,9 +75,10 @@ export default function WordCard({ word }: WordCardProps) {
 
   // ✅ 예문 생성
   const fetchSentence = async () => {
+      if (!user) return;
     setIsLoading(true);
     try {
-      const response = await fetch("/api/sentence/create", {
+      const response = await fetch(`${baseURL}/api/sentence/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -26,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import type { CEFRLevel, Word } from "@/lib/types"
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 export default function AdminDashboard() {
   const [words, setWords] = useState<Word[]>([])
@@ -33,7 +34,7 @@ export default function AdminDashboard() {
   const [selectedWords, setSelectedWords] = useState<Record<string, Word>>({})
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [newWords, setNewWords] = useState<Array<{ spelling: string; mean: string; level: CEFRLevel }>>([])
-  const [editingWordId, setEditingWordId] = useState<string | null>(null)
+  const [editingWordId, setEditingWordId] = useState<number | null>(null)
   const [editValue, setEditValue] = useState("")
   const [editField, setEditField] = useState<"spelling" | "mean" | null>(null)
   const [duplicateErrorIndex, setDuplicateErrorIndex] = useState<number | null>(null)
@@ -70,7 +71,7 @@ export default function AdminDashboard() {
     if (!tempEditWord || !editingWord) return;
 
     try {
-      const res = await fetch("/api/words", {
+      const res = await fetch(`${baseURL}/api/words`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -101,7 +102,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchWords = async () => {
       try {
-        const res = await fetch("/api/words")
+        const res = await fetch(`${baseURL}/api/words`)
         const json = await res.json()
         if (Array.isArray(json)) setWords(json)
       } catch (error) {
@@ -135,7 +136,7 @@ export default function AdminDashboard() {
 
       const queryString = spellingList.map((s) => `wordList=${encodeURIComponent(s)}`).join("&");
 
-      const res = await fetch(`/api/words?${queryString}`, {
+      const res = await fetch(`${baseURL}/api/words?${queryString}`, {
         method: "DELETE",
       });
 
@@ -158,7 +159,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      await fetch("/api/words", {
+      await fetch(`${baseURL}/api/words`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newWords),  // wordId는 포함 안됨
@@ -182,7 +183,7 @@ export default function AdminDashboard() {
     setNewWords(updated)
   }
 
-  const handleDoubleClick = (id: string, field: "spelling" | "mean", value: string) => {
+  const handleDoubleClick = (id: number, field: "spelling" | "mean", value: string) => {
     setEditingWordId(id)
     setEditField(field)
     setEditValue(value)
@@ -191,7 +192,7 @@ export default function AdminDashboard() {
   const handleCheckDuplicate = async (index: number, spelling: string) => {
     if (!spelling.trim()) return
     try {
-      const res = await fetch(`/api/words/doesWordExist?spelling=${encodeURIComponent(spelling)}`)
+      const res = await fetch(`${baseURL}/api/words/doesWordExist?spelling=${encodeURIComponent(spelling)}`)
       const json = await res.json()
       if (json.data === true) {
         const updated = [...newWords]
@@ -209,13 +210,13 @@ export default function AdminDashboard() {
   const handleEditSave = async () => {
     if (!editingWordId || !editField) return
     try {
-      const res = await fetch(`/api/words/${editingWordId}`, {
+      const res = await fetch(`${baseURL}/api/words/${editingWordId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [editField]: editValue }),
       })
       const updated = await res.json()
-      setWords(words.map((w) => (w.id === editingWordId ? updated : w)))
+      setWords(words.map((w) => (w.wordId === editingWordId ? updated : w)))
     } catch (e) {
       console.error("에러", e)
     } finally {
@@ -429,8 +430,8 @@ export default function AdminDashboard() {
                        onCheckedChange={() => handleSelectWord(word)}
                      />
                  </TableCell>
-                 <TableCell onDoubleClick={() => handleDoubleClick(word.id, "spelling", word.spelling)}>
-                   {editingWordId === word.id && editField === "spelling" ? (
+                 <TableCell onDoubleClick={() => handleDoubleClick(word.wordId, "spelling", word.spelling)}>
+                   {editingWordId === word.wordId && editField === "spelling" ? (
                      <Input
                        value={editValue}
                        onChange={(e) => setEditValue(e.target.value)}
@@ -441,8 +442,8 @@ export default function AdminDashboard() {
                      word.spelling
                    )}
                  </TableCell>
-                 <TableCell onDoubleClick={() => handleDoubleClick(word.id, "mean", word.mean)}>
-                   {editingWordId === word.id && editField === "mean" ? (
+                 <TableCell onDoubleClick={() => handleDoubleClick(word.wordId, "mean", word.mean)}>
+                   {editingWordId === word.wordId && editField === "mean" ? (
                      <Input
                        value={editValue}
                        onChange={(e) => setEditValue(e.target.value)}
