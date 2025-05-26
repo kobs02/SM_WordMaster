@@ -7,16 +7,18 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity @Setter @Getter
-@Table(name = "users_table") //Mysql에 해당 이름의 테이블 생성
+@Table(name = "users_table",
+        uniqueConstraints = @UniqueConstraint(columnNames = "login_id")
+) //Mysql에 해당 이름의 테이블 생성
 public class MemberEntity { //table 역할
     @Id // Primary Key 설정
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Id는 생성당 순차적으로 부여
     private Long id;
-    @Column(unique = true) // 로그인용 아이디
+    @Column(unique = true, nullable = false) // 로그인용 아이디
     private String loginId;
-    @Column // 비밀번호
+    @Column(nullable = false)// 비밀번호
     private String password;
-    @Column // 이름
+    @Column(nullable = false) // 이름
     private String name;
     @Column // 역할
     private MemberRole role;

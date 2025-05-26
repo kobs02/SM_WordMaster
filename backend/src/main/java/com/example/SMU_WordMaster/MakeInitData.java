@@ -20,17 +20,17 @@ public class MakeInitData {
             MemberEntity admin = new MemberEntity();
             admin.setLoginId("admin");
             admin.setName("관리자");
-            admin.setPassword("q1w2e3r4");
+            admin.setPassword("1234");
             admin.setRole(MemberRole.ADMIN);
             memberRepository.save(admin);
         }
 
         // 일반 사용자 계정이 없다면 생성
-        if (!memberRepository.existsByLoginId("user@smu.ac.kr")) {
+        if (!memberRepository.existsByLoginId("user")) {
             MemberEntity user = new MemberEntity();
-            user.setLoginId("user@smu.ac.kr");
+            user.setLoginId("user");
             user.setName("일반유저");
-            user.setPassword("user1234");
+            user.setPassword("1234");
             user.setRole(MemberRole.USER);
             memberRepository.save(user);
         }
