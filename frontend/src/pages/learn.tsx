@@ -5,6 +5,7 @@ import WordCard from "@/components/learn/word-card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import type { Word } from "@/lib/types";
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 export default function LearnPage() {
   const { level, unitId } = useParams<{ level: string; unitId: string }>();
@@ -14,7 +15,6 @@ export default function LearnPage() {
   const [words, setWords] = useState<Word[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [bookmarkStatus, setBookmarkStatus] = useState<string | null>(null);
 
   const currentWord = words[currentIndex];
   const isLastWord = currentIndex === words.length - 1;
@@ -23,7 +23,7 @@ export default function LearnPage() {
   useEffect(() => {
     const fetchWords = async () => {
       try {
-        const res = await fetch(`/api/words/by-level-unit?level=${level}&unit=${Number(unitId)}`);
+        const res = await fetch(`${baseURL}/api/words/by-level-unit?level=${level}&unit=${Number(unitId)}`);
         const data = await res.json();
         setWords(data);
       } catch (error) {
@@ -57,10 +57,7 @@ export default function LearnPage() {
               {currentIndex + 1} / {words.length}
             </div>
 
-            <WordCard
-              word={currentWord}
-              onBookmark={() => handleBookmark(currentWord.spelling)}
-            />
+            <WordCard word={currentWord} />
             <div className="flex justify-between mt-6">
               <Button
                 variant="outline"

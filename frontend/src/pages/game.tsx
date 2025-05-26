@@ -7,8 +7,8 @@ import WritingQuiz from "@/components/game/writing-quiz"
 import ResultsTable from "@/components/game/results-table"
 import { Header } from "@/components/layout/header"
 import { useAuth } from "@/lib/auth-context"
-
 import type { Word } from "@/lib/types"
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 type GameType = "multiple" | "writing"
 
@@ -40,7 +40,7 @@ export default function GamePage() {
 
     const fetchWords = async () => {
       try {
-        const res = await fetch(`/api/words/by-level-unit?level=${level}&unit=${Number(unitId)}`)
+        const res = await fetch(`${baseURL}/api/words/by-level-unit?level=${level}&unit=${Number(unitId)}`)
         const data = await res.json()
         setWords(data)
       } catch (error) {
@@ -70,7 +70,7 @@ export default function GamePage() {
     const spellingList = wrongWords.map((word) => word.spelling);
 
     try {
-      const res = await fetch("/api/wrongAnswers", {
+      const res = await fetch(`${baseURL}/api/wrongAnswers`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -97,7 +97,7 @@ export default function GamePage() {
       const wordLevelList = allWords.map((word) => word.level)
 
       try {
-        const res = await fetch("/api/ranking/update", {
+        const res = await fetch(`${baseURL}/api/ranking/update`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ loginId: user.loginId, wordLevelList }),
@@ -113,8 +113,6 @@ export default function GamePage() {
         console.error("🚨 랭킹 업데이트 에러:", error)
       }
     }
-
-
 
   const handleAnswer = (isCorrect: boolean) => {
     if (!isCorrect) {

@@ -8,7 +8,7 @@ interface ExampleCardProps {
   examples: Sentence[]
 }
 
-export default function ExampleCard({ word, examples = [], onRemove }: ExampleCardProps) {
+export default function ExampleCard({ word, examples = []}: ExampleCardProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
 
   const handlePrevious = () => {

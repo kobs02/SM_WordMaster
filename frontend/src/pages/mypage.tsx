@@ -8,10 +8,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Bookmark, Trophy, BookOpen, GamepadIcon as GameController } from "lucide-react"
-import { mockWords } from "@/lib/mock-data"
 import ExampleCard from "@/components/examples/example-card"
 import { Header } from "@/components/layout/header"
-import type { Sentence, BookmarksResponseDto, RankingsResponseDto } from "@/lib/types"
+import type { Sentence, BookmarksResponseDto, RankingsResponseDto, ApiResponse } from "@/lib/types"
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 export default function MyPage() {
   const navigate = useNavigate()
@@ -30,16 +30,29 @@ export default function MyPage() {
 
   // 단어별로 예문 그룹화
   const [sentenceList, setSentenceList] = useState<Sentence[]> ([ {
+      id: 0,
      spelling: "",
      sentence: "예문 조회 중입니다.",
      translation: "",
     },
   ]);
 
+  const groupedSentences = sentenceList.reduce((acc, item) => {
+    if (!acc[item.spelling]) acc[item.spelling] = [];
+    acc[item.spelling].push({
+      id: acc[item.spelling].length,
+      spelling: item.spelling,
+      sentence: item.sentence,
+      translation: item.translation,
+    });
+    return acc;
+  }, {} as Record<string, Sentence[]>);
+
+
   const fetchSentence = async () => {
-      if (!user) return;
+      if (!user) return null;
       try {
-          const response = await fetch(`/api/sentence/getAllByUser?loginId=${user!.loginId}`);
+          const response = await fetch(`${baseURL}/api/sentence/getAllByUser?loginId=${user!.loginId}`);
 
           if (!response.ok)
               throw new Error("예문 조회 실패");
@@ -47,10 +60,11 @@ export default function MyPage() {
           const data: ApiResponse<Sentence[]> = await response.json();
           console.log(data);
 
-          if (data.success)
+          if (data.success && data.data) {
               setSentenceList(data.data);
-          else
+          } else
               setSentenceList([{
+                  id: 0,
                   spelling: "",
                   sentence: "data.message",
                   translation: "",
@@ -59,6 +73,7 @@ export default function MyPage() {
       }
       catch (error) {
           setSentenceList([{
+              id: 0,
               spelling: "",
               sentence: "예문을 조회하는 데 실패했어요.",
               translation: ""
@@ -68,8 +83,9 @@ export default function MyPage() {
   }
 
   const fetchBookmarks = async (loginId: string): Promise<BookmarksResponseDto[] | null> => {
+      if (!user) return null;
     try {
-      const res = await fetch(`/api/bookmarks/getAllByUser?loginId=${encodeURIComponent(user.loginId)}`);
+      const res = await fetch(`${baseURL}/api/bookmarks/getAllByUser?loginId=${encodeURIComponent(user?.loginId)}`);
       const json: ApiResponse<BookmarksResponseDto[]> = await res.json();
       if (json.success && Array.isArray(json.data)) {
         setBookmarkedWords(json.data);
@@ -87,16 +103,16 @@ export default function MyPage() {
   useEffect(() => {
       if (!user) return;
       fetchSentence();
-      fetchBookmarks(user.loginId);
+      fetchBookmarks(user?.loginId);
   },[user]);
 
   // 랭킹 데이터
   useEffect(() => {
       const fetchRankings = async () => {
-        if (!user?.loginId) return
+        if (!user) return null;
 
         try {
-          const res = await fetch(`/api/ranking/get?loginId=${encodeURIComponent(user.loginId)}`)
+          const res = await fetch(`${baseURL}/api/ranking/get?loginId=${encodeURIComponent(user?.loginId)}`)
           const json = await res.json()
 
           if (json.success && Array.isArray(json.data)) {
@@ -126,15 +142,15 @@ export default function MyPage() {
 
 
   const handleRemoveBookmark = async (spelling: string) => {
-      if (!user) return;
+      if (!user) return null;
     try {
-      const res = await fetch("/api/bookmarks/delete", {
+      const res = await fetch(`${baseURL}/api/bookmarks/delete`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          loginId: user.loginId,
+          loginId: user?.loginId,
           spelling: spelling,
         }),
       });
@@ -154,7 +170,6 @@ export default function MyPage() {
 
   const handleProfileUpdate = (e: React.FormEvent) => {
     e.preventDefault()
-    // 실제 구현에서는 API 호출로 프로필 업데이트
     alert("프로필이 업데이트되었습니다.")
   }
 
@@ -249,7 +264,7 @@ export default function MyPage() {
                 <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                   <div className="flex items-center gap-4">
                     <div>
-                      <h3 className="text-xl font-bold">{user.name}</h3>
+                      <h3 className="text-xl font-bold">{user?.name}</h3>
                       <p className="text-muted-foreground dark:text-gray-400">
                         현재 랭킹: {userRankIndex !== -1 ? userRankIndex + 1 : "정보 없음"}위
                       </p>
@@ -268,7 +283,7 @@ export default function MyPage() {
                   </TableHeader>
                   <TableBody>
                     {getNearbyRankings().map((rank, index) => {
-                      const isCurrentUser = rank.name === user.name
+                      const isCurrentUser = rank.name === user?.name
                       return (
                         <TableRow
                           key={rank.name}
@@ -368,23 +383,8 @@ export default function MyPage() {
               <CardContent>
                 {sentenceList.length > 0 ? (
                   <div className="space-y-4">
-                    {Object.entries(
-                      sentenceList.reduce((acc, item) => {
-                        if (!acc[item.spelling]) acc[item.spelling] = []
-                        acc[item.spelling].push({
-                          id: `${item.spelling}-${acc[item.spelling].length}`,
-                          spelling: item.spelling,
-                          sentence: item.sentence,
-                          translation: item.translation,
-                        })
-                        return acc
-                      }, {} as Record<string, Sentence[]>)
-                    ).map(([word, examples]) => (
-                      <ExampleCard
-                        key={word}
-                        word={word}
-                        examples={examples}
-                      />
+                    {Object.entries(groupedSentences).map(([word, examples]) => (
+                      <ExampleCard key={word} word={word} examples={examples} />
                     ))}
                   </div>
                 ) : (

@@ -12,9 +12,7 @@ import LearnPage from "@/pages/learn";
 import UnitPage from "@/pages/unit";
 import GamePage from "@/pages/game";
 import DailyGamePage from "@/pages/daily-game";
-import BookmarksPage from "@/pages/bookmarks";
 import WrongAnswersPage from "@/pages/wrong-answers";
-import RankingsPage from "@/pages/rankings";
 import MyPage from "@/pages/mypage";
 
 const App = () => {

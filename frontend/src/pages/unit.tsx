@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Header } from "@/components/layout/header";
 import type { CEFRLevel } from "@/lib/types";
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 type UnitCountData = {
   level: CEFRLevel;
@@ -17,7 +18,7 @@ export default function UnitPage() {
   const mode = (searchParams.get("mode") as "learn" | "game") || "learn";
 
   const [selectedLevel, setSelectedLevel] = useState<CEFRLevel>((defaultLevel as CEFRLevel) || "A1");
-  const [unitCounts, setUnitCounts] = useState<Record<CEFRLevel, number>>({});
+  const [unitCounts, setUnitCounts] = useState<Record<CEFRLevel, number>>({} as Record<CEFRLevel, number>);
   const [loading, setLoading] = useState(true);
 
   const levels: CEFRLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
@@ -25,7 +26,7 @@ export default function UnitPage() {
   useEffect(() => {
     const fetchUnitCounts = async () => {
       try {
-        const res = await fetch("/api/words/countUnits");
+        const res = await fetch(`${baseURL}/api/words/countUnits`);
         const json = await res.json();
 
         if (!Array.isArray(json.data)) {

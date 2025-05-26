@@ -1,5 +1,3 @@
-import type { spelling } from "./types"
-
 // 사용자 데이터 예시
 export const mockUsers = [
   {
