@@ -5,7 +5,8 @@ import { BookOpen, GamepadIcon as GameController, Calendar, AlertTriangle, Troph
 
 export default function UserDashboard() {
   const navigate = useNavigate()
-  const defaultLevel = "A1" // 추후 user.level 등으로 동적 설정 가능
+  const defaultLevel = "A1"
+
 
   const menuItems = [
     {
@@ -13,34 +14,40 @@ export default function UserDashboard() {
       description: "CEFR 레벨별 단어 학습",
       icon: BookOpen,
       mode: "learn",
-      color: "bg-blue-100 dark:bg-blue-900",
-      iconColor: "text-blue-600 dark:text-blue-300",
+      color: "bg-blue-200 dark:bg-blue-700",
+      iconColor: "text-blue-700 dark:text-white",
+      textColor: "text-gray-800 dark:text-white", // 👈 텍스트 컬러
     },
     {
       title: "단어 게임",
       description: "학습한 단어로 게임하기",
       icon: GameController,
       mode: "game",
-      color: "bg-green-100 dark:bg-green-900",
-      iconColor: "text-green-600 dark:text-green-300",
+      color: "bg-green-200 dark:bg-green-700",
+      iconColor: "text-green-700 dark:text-white",
+      textColor: "text-gray-800 dark:text-white",
     },
     {
       title: "일일 게임",
       description: "오늘의 단어 도전",
       icon: Calendar,
       path: "/daily-game",
-      color: "bg-purple-100 dark:bg-purple-900",
-      iconColor: "text-purple-600 dark:text-purple-300",
+      color: "bg-purple-200 dark:bg-purple-700",
+      iconColor: "text-purple-700 dark:text-white",
+      textColor: "text-gray-800 dark:text-white",
     },
     {
       title: "오답 노트",
       description: "틀린 단어 복습하기",
       icon: AlertTriangle,
       path: "/wrong-answers",
-      color: "bg-red-100 dark:bg-red-900",
-      iconColor: "text-red-600 dark:text-red-300",
+      color: "bg-red-200 dark:bg-red-700",
+      iconColor: "text-red-700 dark:text-white",
+      textColor: "text-gray-800 dark:text-white",
     },
   ]
+
+
 
   const handleClick = (item: any) => {
     if (item.mode === "learn" || item.mode === "game") {
@@ -57,10 +64,10 @@ export default function UserDashboard() {
         <Card key={item.title} className="overflow-hidden border dark:border-gray-700">
           <CardHeader className={`${item.color}`}>
             <div className="flex justify-between items-center">
-              <CardTitle className="text-lg">{item.title}</CardTitle>
+              <CardTitle className={`text-lg ${item.iconColor}`}>{item.title}</CardTitle>
               <item.icon className={`h-6 w-6 ${item.iconColor}`} />
             </div>
-            <CardDescription className="dark:text-gray-300">{item.description}</CardDescription>
+            <CardDescription className={`dark:text-gray-300 ${item.textColor}`}>{item.description}</CardDescription>
           </CardHeader>
           <CardFooter className="pt-4 bg-card dark:bg-gray-800">
             <Button

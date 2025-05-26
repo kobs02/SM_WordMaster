@@ -1,40 +1,45 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/layout/header"
-import { mockWords } from "@/lib/mock-data"
+import { useAuth } from "@/lib/auth-context"
+import type { Word } from "@/lib/types"
+
+interface WrongAnswerDto {
+  spelling: string;
+  mean: string;
+  level: string;
+  count: number;
+}
 
 export default function WrongAnswersPage() {
   const navigate = useNavigate()
-  const [wrongAnswers, setWrongAnswers] = useState(
-    mockWords.slice(0, 5).map((word) => ({ ...word, selected: false }))
-  )
+  const { user } = useAuth()
+  const [wrongAnswers, setWrongAnswers] = useState<WrongAnswerDto[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const toggleSelect = (wordId: string) => {
-    setWrongAnswers((prev) =>
-      prev.map((word) =>
-        word.id === wordId ? { ...word, selected: !word.selected } : word
-      )
-    )
-  }
-
-  const toggleSelectAll = (checked: boolean) => {
-    setWrongAnswers((prev) =>
-      prev.map((word) => ({ ...word, selected: checked }))
-    )
-  }
-
-  const handleStartGame = () => {
-    const selectedWords = wrongAnswers.filter((w) => w.selected).map((w) => w.word)
-    if (selectedWords.length > 0) {
-      localStorage.setItem("selectedWords", JSON.stringify(selectedWords))
-      navigate("/game/bookmarked")
-    } else {
-      alert("게임을 시작하려면 단어를 선택해주세요.")
+  useEffect(() => {
+      if (!user) return;
+    const fetchWrongAnswers = async () => {
+      try {
+        const res = await fetch(`/api/wrongAnswers?loginId=${encodeURIComponent(user.loginId)}`)
+        const json = await res.json()
+        if (json.success && Array.isArray(json.data)) {
+          setWrongAnswers(json.data)
+        } else {
+          console.warn("예상하지 못한 형식:", json)
+        }
+      } catch (error) {
+        console.error("🚨 오답 노트 불러오기 실패:", error)
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+
+    if (user?.loginId) fetchWrongAnswers()
+  }, [user?.loginId])
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -46,55 +51,32 @@ export default function WrongAnswersPage() {
         <Card>
           <CardHeader>
             <CardTitle>틀린 단어 복습</CardTitle>
-            <CardDescription>선택한 단어로 다시 게임할 수 있어요.</CardDescription>
+            <CardDescription>사용자가 틀린 단어와 횟수를 확인할 수 있습니다.</CardDescription>
           </CardHeader>
           <CardContent>
-            {wrongAnswers.length > 0 ? (
-              <>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>
-                        <input
-                          type="checkbox"
-                          onChange={(e) => toggleSelectAll(e.target.checked)}
-                        />
-                      </TableHead>
-                      <TableHead>영단어</TableHead>
-                      <TableHead>의미</TableHead>
-                      <TableHead>레벨</TableHead>
-                      <TableHead>틀린 횟수</TableHead>
-                      <TableHead></TableHead>
+            {loading ? (
+              <div className="text-center">불러오는 중입니다...</div>
+            ) : wrongAnswers.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-center">영단어</TableHead>
+                    <TableHead className="text-center">의미</TableHead>
+                    <TableHead className="text-center">레벨</TableHead>
+                    <TableHead className="text-center">틀린 횟수</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {wrongAnswers.map((word) => (
+                    <TableRow key={word.spelling}>
+                      <TableCell className="text-center font-medium">{word.spelling}</TableCell>
+                      <TableCell className="text-center">{word.mean}</TableCell>
+                      <TableCell className="text-center">{word.level}</TableCell>
+                      <TableCell className="text-center">{word.count}</TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {wrongAnswers.map((word) => (
-                      <TableRow key={word.id}>
-                        <TableCell>
-                          <input
-                            type="checkbox"
-                            checked={word.selected}
-                            onChange={() => toggleSelect(word.id)}
-                          />
-                        </TableCell>
-                        <TableCell className="font-medium">{word.word}</TableCell>
-                        <TableCell>{word.meaning}</TableCell>
-                        <TableCell>{word.level}</TableCell>
-                        <TableCell>{Math.floor(Math.random() * 5) + 1}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-
-                <div className="text-right mt-4">
-                  <Button
-                    onClick={handleStartGame}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    선택한 단어로 게임 시작
-                  </Button>
-                </div>
-              </>
+                  ))}
+                </TableBody>
+              </Table>
             ) : (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">오답이 없습니다.</p>

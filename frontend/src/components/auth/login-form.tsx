@@ -10,10 +10,15 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 
+interface LoginFormState {
+  loginId: string;
+  password: string;
+}
+
 export function LoginForm() {
   const navigate = useNavigate()
   const { login } = useAuth()
-  const [formData, setFormData] = useState<string[]>({
+  const [formData, setFormData] = useState<LoginFormState>({
     loginId: "",
     password: "",
   })

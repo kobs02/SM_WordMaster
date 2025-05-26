@@ -1,65 +1,44 @@
-import { useParams, useNavigate } from "react-router-dom"
-import { useEffect, useState } from "react"
-import { Header } from "@/components/layout/header"
-import { mockWords as initialWords } from "@/lib/mock-data"
-import WordCard from "@/components/learn/word-card"
-import { Button } from "@/components/ui/button"
-
-const UNIT_SIZE = 5
+import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Header } from "@/components/layout/header";
+import WordCard from "@/components/learn/word-card";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth-context";
+import type { Word } from "@/lib/types";
 
 export default function LearnPage() {
-  const { level, unitId } = useParams<{ level: string; unitId: string }>()
-  const navigate = useNavigate()
-  const [words, setWords] = useState<typeof initialWords>([])
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const { level, unitId } = useParams<{ level: string; unitId: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
+  const [words, setWords] = useState<Word[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [bookmarkStatus, setBookmarkStatus] = useState<string | null>(null);
+
+  const currentWord = words[currentIndex];
+  const isLastWord = currentIndex === words.length - 1;
+
+  // 단어 목록 불러오기
   useEffect(() => {
-    const filtered = initialWords
-      .filter((w) => w.level === level)
-      .sort((a, b) => a.id.localeCompare(b.id))
-
-    const unitIndex = Number(unitId)
-    const start = (unitIndex - 1) * UNIT_SIZE
-    const end = start + UNIT_SIZE
-    const sliced = filtered.slice(start, end)
-
-    setWords(sliced)
-    setCurrentIndex(0)
-    setLoading(false)
-  }, [level, unitId])
-
-  const handleBookmark = (wordId: string) => {
-    const updatedWords = words.map((word) =>
-      word.id === wordId ? { ...word, bookmarked: !word.bookmarked } : word
-    )
-    setWords(updatedWords)
-
-    const indexInMock = initialWords.findIndex((w) => w.id === wordId)
-    if (indexInMock !== -1) {
-      initialWords[indexInMock] = {
-        ...initialWords[indexInMock],
-        bookmarked: !initialWords[indexInMock].bookmarked,
+    const fetchWords = async () => {
+      try {
+        const res = await fetch(`/api/words/by-level-unit?level=${level}&unit=${Number(unitId)}`);
+        const data = await res.json();
+        setWords(data);
+      } catch (error) {
+        console.error("단어 불러오기 실패:", error);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+    fetchWords();
+  }, [level, unitId]);
 
-    localStorage.setItem("mockWords", JSON.stringify(initialWords))
-  }
 
-  const handlePrev = () => {
-    setCurrentIndex((prev) => Math.max(prev - 1, 0))
-  }
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => Math.min(prev + 1, words.length - 1))
-  }
-
-  const handleStartGame = () => {
-    navigate(`/game/${level}/unit/${unitId}`)
-  }
-
-  const currentWord = words[currentIndex]
-  const isLastWord = currentIndex === words.length - 1
+  const handlePrev = () => setCurrentIndex((prev) => Math.max(prev - 1, 0));
+  const handleNext = () => setCurrentIndex((prev) => Math.min(prev + 1, words.length - 1));
+  const handleStartGame = () => navigate(`/game/${level}/unit/${unitId}`);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -78,8 +57,10 @@ export default function LearnPage() {
               {currentIndex + 1} / {words.length}
             </div>
 
-            <WordCard word={currentWord} onBookmark={handleBookmark} />
-
+            <WordCard
+              word={currentWord}
+              onBookmark={() => handleBookmark(currentWord.spelling)}
+            />
             <div className="flex justify-between mt-6">
               <Button
                 variant="outline"
@@ -94,11 +75,7 @@ export default function LearnPage() {
                   게임 시작
                 </Button>
               ) : (
-                <Button
-                  variant="default"
-                  onClick={handleNext}
-                  disabled={false}
-                >
+                <Button variant="default" onClick={handleNext}>
                   다음
                 </Button>
               )}
@@ -111,5 +88,5 @@ export default function LearnPage() {
         )}
       </main>
     </div>
-  )
+  );
 }

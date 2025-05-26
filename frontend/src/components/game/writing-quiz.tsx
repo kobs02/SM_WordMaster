@@ -18,14 +18,14 @@ export default function WritingQuiz({ word, onAnswer, isLast }: WritingQuizProps
   }, [word])
 
   const handleSubmit = () => {
-    const isCorrect = answer.trim().toLowerCase() === word.word.toLowerCase()
+    const isCorrect = answer.trim().toLowerCase() === word.spelling.toLowerCase()
     onAnswer(isCorrect)
   }
 
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2">{word.meaning}</h2>
+        <h2 className="text-2xl font-bold mb-2">{word.mean}</h2>
         <p className="text-muted-foreground dark:text-gray-400">이 뜻에 해당하는 영단어를 입력하세요</p>
       </div>
 

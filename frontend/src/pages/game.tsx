@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react"
-import { useLocation, useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { mockWords } from "@/lib/mock-data"
 import MultipleChoiceQuiz from "@/components/game/multiple-choice-quiz"
 import WritingQuiz from "@/components/game/writing-quiz"
 import ResultsTable from "@/components/game/results-table"
 import { Header } from "@/components/layout/header"
+import { useAuth } from "@/lib/auth-context"
+
+import type { Word } from "@/lib/types"
 
 type GameType = "multiple" | "writing"
 
@@ -14,26 +16,105 @@ export default function GamePage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { level, unitId } = useParams<{ level: string; unitId: string }>()
+  const { user } = useAuth()
 
   const [gameType, setGameType] = useState<GameType | null>(null)
-  const [words, setWords] = useState(mockWords.slice(0, 20)) // fallback
+  const [words, setWords] = useState<Word[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isGameFinished, setIsGameFinished] = useState(false)
-  const [wrongAnswers, setWrongAnswers] = useState<typeof mockWords>([])
+  const [wrongAnswers, setWrongAnswers] = useState<Word[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // ✅ 북마크에서 넘어온 단어 가져오기
   useEffect(() => {
+    const stateWords = location.state?.words
     const bookmarked = localStorage.getItem("selectedWords")
-    if (bookmarked) {
+
+    if (stateWords && Array.isArray(stateWords)) {
+      setWords(stateWords)
+      setLoading(false)
+    } else if (bookmarked) {
       const parsed = JSON.parse(bookmarked)
-      const filtered = mockWords.filter((w) => parsed.includes(w.word))
-      setWords(filtered)
-    } else if (level) {
-      // URL로 들어온 경우 level 기준 필터링
-      const filtered = mockWords.filter((w) => w.level === level).slice(0, 20)
-      setWords(filtered)
+      setWords(parsed)
+      setLoading(false)
     }
-  }, [level])
+
+    const fetchWords = async () => {
+      try {
+        const res = await fetch(`/api/words/by-level-unit?level=${level}&unit=${Number(unitId)}`)
+        const data = await res.json()
+        setWords(data)
+      } catch (error) {
+        console.error("단어 불러오기 실패:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (level && unitId) {
+      fetchWords()
+    }
+  }, [location.state, level, unitId])
+
+  useEffect(() => {
+    if (isGameFinished) {
+      if (wrongAnswers.length > 0) {
+        updateWrongAnswers(wrongAnswers)
+      }
+      updateRankings(words)
+    }
+  }, [isGameFinished, wrongAnswers])
+
+  const updateWrongAnswers = async (wrongWords: Word[]) => {
+    if (!wrongWords || wrongWords.length === 0 || !user?.loginId) return;
+
+    const spellingList = wrongWords.map((word) => word.spelling);
+
+    try {
+      const res = await fetch("/api/wrongAnswers", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          loginId: user.loginId,
+          spellingList,
+        }),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        console.log("✅ 오답 횟수 업데이트 완료");
+      } else {
+        console.warn("❗오답 업데이트 실패:", json.message);
+      }
+    } catch (error) {
+      console.error("🚨 오답 업데이트 에러:", error);
+    }
+  };
+
+  // 랭킹 업데이트
+  const updateRankings = async (allWords: Word[]) => {
+      if (!user?.loginId || !allWords || allWords.length === 0) return
+
+      const wordLevelList = allWords.map((word) => word.level)
+
+      try {
+        const res = await fetch("/api/ranking/update", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ loginId: user.loginId, wordLevelList }),
+        })
+
+        const json = await res.json()
+        if (json.success) {
+          console.log("✅ 랭킹 업데이트 완료")
+        } else {
+          console.warn("❗랭킹 업데이트 실패:", json.message)
+        }
+      } catch (error) {
+        console.error("🚨 랭킹 업데이트 에러:", error)
+      }
+    }
+
+
 
   const handleAnswer = (isCorrect: boolean) => {
     if (!isCorrect) {
@@ -67,8 +148,11 @@ export default function GamePage() {
           {level ? `${level} - Unit ${unitId} 게임` : "북마크 단어 게임"}
         </h1>
 
-        {!gameType ? (
-          // ✅ 게임 유형 선택 화면
+        {loading ? (
+          <div className="text-center">단어를 불러오는 중입니다...</div>
+        ) : words.length === 0 ? (
+          <div className="text-center text-muted-foreground">단어가 없습니다.</div>
+        ) : !gameType ? (
           <div className="text-center space-y-6">
             <p className="text-lg">어떤 유형으로 게임을 진행할까요?</p>
             <div className="flex justify-center gap-4">
@@ -77,7 +161,6 @@ export default function GamePage() {
             </div>
           </div>
         ) : !isGameFinished ? (
-          // ✅ 게임 진행 중
           <>
             <div className="mb-4 text-sm text-muted-foreground text-right">
               {currentIndex + 1} / {words.length}
@@ -85,14 +168,22 @@ export default function GamePage() {
 
             <Card className="p-6">
               {gameType === "multiple" ? (
-                <MultipleChoiceQuiz word={words[currentIndex]} allWords={words} onAnswer={handleAnswer} />
+                <MultipleChoiceQuiz
+                  word={words[currentIndex]}
+                  allWords={words}
+                  onAnswer={handleAnswer}
+                  isLast={currentIndex === words.length - 1}
+                />
               ) : (
-                <WritingQuiz word={words[currentIndex]} onAnswer={handleAnswer} />
+                <WritingQuiz
+                  word={words[currentIndex]}
+                  onAnswer={handleAnswer}
+                  isLast={currentIndex === words.length - 1}
+                />
               )}
             </Card>
           </>
         ) : (
-          // ✅ 게임 완료 결과 화면
           <div className="space-y-8 max-w-md mx-auto text-center">
             <div className="bg-muted p-4 rounded-lg">
               <h2 className="text-xl font-semibold mb-4">게임 결과</h2>
@@ -113,9 +204,7 @@ export default function GamePage() {
 
             <div className="flex justify-center gap-4">
               <Button onClick={handleRestart}>다시 시작</Button>
-              <Button variant="outline" onClick={() => navigate("/")}>
-                홈으로 이동
-              </Button>
+              <Button variant="outline" onClick={() => navigate("/")}>홈으로 이동</Button>
             </div>
           </div>
         )}

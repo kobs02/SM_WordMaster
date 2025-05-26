@@ -1,7 +1,6 @@
 package com.example.SMU_WordMaster.service;
 
 import com.example.SMU_WordMaster.dto.SentencesResponseDto;
-import com.example.SMU_WordMaster.dto.SuccessResponseDto;
 import com.example.SMU_WordMaster.entity.Sentences;
 import com.example.SMU_WordMaster.entity.Users;
 import com.example.SMU_WordMaster.entity.Words;
@@ -38,7 +37,7 @@ public class SentencesService {
     private String apiKey;
 
     // GPT API 호출을 통해 예문 응답을 문자열 형태로 반환
-    public SentencesResponseDto getGptResponse(String prompt, String word) {
+    public SentencesResponseDto getGptResponse(String prompt, String spelling) {
         String url = "https://api.openai.com/v1/chat/completions";
 
         HttpHeaders headers = new HttpHeaders();
@@ -84,7 +83,7 @@ public class SentencesService {
 
             ObjectMapper mapper = new ObjectMapper();
             SentencesResponseDto sentenceDto = mapper.readValue(content, SentencesResponseDto.class);
-            sentenceDto.setWord(word);
+            sentenceDto.setSpelling(spelling);
 
             System.out.println(sentenceDto);
 
@@ -96,9 +95,9 @@ public class SentencesService {
     }
 
     // 해당 사용자, 단어 조합의 예문이 20개 이상인 경우 가장 오래된 예문 삭제
-    public void deleteOldestSentenceIfOverLimit(String email, String word) {
-        Users userEntity = utils.getUserEntity(email);
-        Words wordEntity = utils.getWordsEntity(word);
+    public void deleteOldestSentenceIfOverLimit(String loginId, String spelling) {
+        Users userEntity = utils.getUserEntity(loginId);
+        Words wordEntity = utils.getWordsEntity(spelling);
 
         try {
             if (sentencesRepository.countByUsersAndWords(userEntity, wordEntity) >= 20) {
@@ -112,9 +111,9 @@ public class SentencesService {
     }
 
     // 주어진 사용자와 단어에 해당하는 예문 1개를 예문 엔티티에 저장
-    public void saveSentence(String email, String word, String sentence, String translation) {
-        Users userEntity = utils.getUserEntity(email);
-        Words wordEntity = utils.getWordsEntity(word);
+    public void saveSentence(String loginId, String spelling, String sentence, String translation) {
+        Users userEntity = utils.getUserEntity(loginId);
+        Words wordEntity = utils.getWordsEntity(spelling);
 
         if (sentence == null || sentence.isBlank()) { throw new IllegalArgumentException("해당 예문은 null이거나 비어 있습니다"); }
         if (translation == null || translation.isBlank()) { throw new IllegalArgumentException("해당 예문 뜻은 null이거나 비어 있습니다"); }
@@ -133,20 +132,20 @@ public class SentencesService {
     }
 
     // 해당 사용자가 주어진 단어로 생성한 모든 예문을 SentencesResponseDto 리스트 형태로 반환
-    public List<SentencesResponseDto> getAllSentencesByWord(String email, String word) {
-        Users userEntity = utils.getUserEntity(email);
-        Words wordEntity = utils.getWordsEntity(word);
+    public List<SentencesResponseDto> getAllSentencesByWord(String loginId, String spelling) {
+        Users userEntity = utils.getUserEntity(loginId);
+        Words wordEntity = utils.getWordsEntity(spelling);
 
         try { return utils.getSentencesList(userEntity, wordEntity); }
-        catch (Exception e) { throw new SentencesFindFailedException(email, word, e); }
+        catch (Exception e) { throw new SentencesFindFailedException(loginId, spelling, e); }
     }
 
     // 해당 사용자가 생성한 모든 예문을 SentenceResponseDto 리스트 형태로 반환
-    public List<SentencesResponseDto> getAllSentencesByUser(String email) {
-        Users userEntity = utils.getUserEntity(email);
+    public List<SentencesResponseDto> getAllSentencesByUser(String loginId) {
+        Users userEntity = utils.getUserEntity(loginId);
 
         try { return utils.getSentencesList(userEntity, null); }
-        catch (Exception e) { throw new SentencesFindFailedException(email, e); }
+        catch (Exception e) { throw new SentencesFindFailedException(loginId, e); }
 
     }
 }

@@ -16,26 +16,29 @@ export default function MultipleChoiceQuiz({ word, allWords, onAnswer, isLast }:
   const [selectedOption, setSelectedOption] = useState<string>("")
 
   useEffect(() => {
+      console.log("넘겨받은 word 객체:", word)
+      if (!word) return;  // 방어코드: word가 undefined면 무시
+
     const otherOptions = allWords
-      .filter((w) => w.id !== word.id)
-      .map((w) => w.meaning)
+      .filter((w) => w.wordId !== word.wordId)
+      .map((w) => w.mean)
       .sort(() => 0.5 - Math.random())
       .slice(0, 3)
 
-    const allOptions = [...otherOptions, word.meaning].sort(() => 0.5 - Math.random())
+    const allOptions = [...otherOptions, word.mean].sort(() => 0.5 - Math.random())
 
     setOptions(allOptions)
     setSelectedOption("")
   }, [word, allWords])
 
   const handleSubmit = () => {
-    onAnswer(selectedOption === word.meaning)
+    onAnswer(selectedOption === word.mean)
   }
 
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2">{word.word}</h2>
+        <h2 className="text-2xl font-bold mb-2">{word.spelling}</h2>
         <p className="text-muted-foreground dark:text-gray-400">이 단어의 뜻을 선택하세요</p>
       </div>
 

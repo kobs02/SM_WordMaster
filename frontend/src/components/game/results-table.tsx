@@ -25,8 +25,8 @@ export default function ResultsTable({ words }: ResultsTableProps) {
       <TableBody>
         {words.map((word) => (
           <TableRow key={word.id} className="dark:border-gray-700">
-            <TableCell className="text-center font-medium dark:text-gray-300">{word.word}</TableCell>
-            <TableCell className="text-center dark:text-gray-300">{word.meaning}</TableCell>
+            <TableCell className="text-center font-medium dark:text-gray-300">{word.spelling}</TableCell>
+            <TableCell className="text-center dark:text-gray-300">{word.mean}</TableCell>
             <TableCell className="text-center dark:text-gray-300">{word.level}</TableCell>
           </TableRow>
         ))}
@@ -34,4 +34,3 @@ export default function ResultsTable({ words }: ResultsTableProps) {
     </Table>
   )
 }
-

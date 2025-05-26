@@ -21,7 +21,7 @@ public class Users {
     private Long userId;
 
     @Column(name = "login_id")
-    private String email;
+    private String loginId;
 
     @Column(name = "password")
     private String password;
@@ -29,7 +29,7 @@ public class Users {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "role")
+    @Column(name = "role", columnDefinition = "bit(1)")
     private boolean role;
 
     // Sentences 연관관계 (1:N)
@@ -39,4 +39,8 @@ public class Users {
     // Bookmarks 연관관계 (1:N)
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookmarks> bookmarks = new ArrayList<>();
+
+    // WrongAnswers 연관관계 (1:N)
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WrongAnswers> wrongAnswers= new ArrayList<>();
 }

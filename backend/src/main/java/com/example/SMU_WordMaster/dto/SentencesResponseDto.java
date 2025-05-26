@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SentencesResponseDto {
-    private String word;
+    private String spelling;
     private String sentence;
     private String translation;
 }
