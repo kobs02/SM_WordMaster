@@ -13,4 +13,6 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
 
     @Query("SELECT COUNT(u) FROM Users u WHERE u.role = false")
     int countUsers();
+
+    boolean existsByLoginId(String LoginId);
 }
