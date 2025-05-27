@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Header } from "@/components/layout/header"
 import { useAuth } from "@/lib/auth-context"
 import type { Word } from "@/lib/types"
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 interface WrongAnswerDto {
   spelling: string;
@@ -25,7 +24,7 @@ export default function WrongAnswersPage() {
       if (!user) return;
     const fetchWrongAnswers = async () => {
       try {
-        const res = await fetch(`${baseURL}/api/wrongAnswers?loginId=${encodeURIComponent(user.loginId)}`)
+        const res = await fetch(`/api/wrongAnswers?loginId=${encodeURIComponent(user.loginId)}`)
         const json = await res.json()
         if (json.success && Array.isArray(json.data)) {
           setWrongAnswers(json.data)

@@ -1,4 +1,4 @@
-package com.example.SMU_WordMaster.service;
+/*package com.example.SMU_WordMaster.service;
 
 import com.example.SMU_WordMaster.dto.IsMemberResponseDto;
 import com.example.SMU_WordMaster.dto.MemberDto;
@@ -28,7 +28,7 @@ public class MemberService {
     }
 
     // 로그인 서비스
-    public IsMemberResponseDto login(String LoginId, String password) {
+    /*public IsMemberResponseDto login(String LoginId, String password) {
         boolean isLoginId = false;
         boolean isPassword = false;
         if (usersRepository.existsByLoginId(LoginId)) {
@@ -37,6 +37,6 @@ public class MemberService {
                 isPassword = true;
             }
         }
-        return new IsMemberResponseDto(isLoginId, isPassword));
-    }
-}
+        return new IsMemberResponseDto(isLoginId, isPassword);
+    }*/
+

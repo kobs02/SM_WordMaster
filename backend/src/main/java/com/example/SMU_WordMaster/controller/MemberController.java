@@ -1,4 +1,4 @@
-package com.example.SMU_WordMaster.controller;
+/*package com.example.SMU_WordMaster.controller;
 
 import com.example.SMU_WordMaster.dto.MemberDto;
 import com.example.SMU_WordMaster.service.MemberService;
@@ -25,10 +25,10 @@ public class MemberController {
     }
 
     // 로그인
-    @PostMapping("/login")
+    /*@PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody MemberDto dto, HttpSession session) {
         memberService
-    }
+    }*/
 
     // 로그아웃
 
@@ -36,6 +36,3 @@ public class MemberController {
 
     // 회원 탈퇴
 
-
-
-}

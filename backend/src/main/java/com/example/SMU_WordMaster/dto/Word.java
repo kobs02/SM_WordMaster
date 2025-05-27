@@ -11,6 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Word {
+    private Long wordId;
     private String spelling;
     private String mean;
     private String level;

@@ -26,7 +26,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import type { CEFRLevel, Word } from "@/lib/types"
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 export default function AdminDashboard() {
   const [words, setWords] = useState<Word[]>([])
@@ -71,7 +70,7 @@ export default function AdminDashboard() {
     if (!tempEditWord || !editingWord) return;
 
     try {
-      const res = await fetch(`${baseURL}/api/words`, {
+      const res = await fetch(`/api/words`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -102,7 +101,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchWords = async () => {
       try {
-        const res = await fetch(`${baseURL}/api/words`)
+        const res = await fetch(`/api/words`)
         const json = await res.json()
         if (Array.isArray(json)) setWords(json)
       } catch (error) {
@@ -136,7 +135,7 @@ export default function AdminDashboard() {
 
       const queryString = spellingList.map((s) => `wordList=${encodeURIComponent(s)}`).join("&");
 
-      const res = await fetch(`${baseURL}/api/words?${queryString}`, {
+      const res = await fetch(`/api/words?${queryString}`, {
         method: "DELETE",
       });
 
@@ -159,7 +158,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      await fetch(`${baseURL}/api/words`, {
+      await fetch(`/api/words`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newWords),  // wordId는 포함 안됨
@@ -192,7 +191,7 @@ export default function AdminDashboard() {
   const handleCheckDuplicate = async (index: number, spelling: string) => {
     if (!spelling.trim()) return
     try {
-      const res = await fetch(`${baseURL}/api/words/doesWordExist?spelling=${encodeURIComponent(spelling)}`)
+      const res = await fetch(`/api/words/doesWordExist?spelling=${encodeURIComponent(spelling)}`)
       const json = await res.json()
       if (json.data === true) {
         const updated = [...newWords]
@@ -210,7 +209,7 @@ export default function AdminDashboard() {
   const handleEditSave = async () => {
     if (!editingWordId || !editField) return
     try {
-      const res = await fetch(`${baseURL}/api/words/${editingWordId}`, {
+      const res = await fetch(`/api/words/${editingWordId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [editField]: editValue }),

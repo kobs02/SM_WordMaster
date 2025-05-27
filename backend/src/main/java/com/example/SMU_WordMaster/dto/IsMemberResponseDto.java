@@ -1,4 +1,4 @@
-package com.example.SMU_WordMaster.dto;
+/*package com.example.SMU_WordMaster.dto;
 
 import lombok.*;
 
@@ -10,4 +10,4 @@ import lombok.*;
 public class IsMemberResponseDto {
     private boolean isLoginId;
     private boolean isPassword;
-}
+}*/

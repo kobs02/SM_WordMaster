@@ -41,6 +41,7 @@ public class WordService {
         // Entity → DTO 변환
         return wordsEntityList.stream().map(entity -> {
             Word dto = new Word();
+            dto.setWordId(entity.getWordId());
             dto.setLevel(entity.getLevel().name());
             dto.setSpelling(entity.getSpelling());
             dto.setMean(entity.getMean());

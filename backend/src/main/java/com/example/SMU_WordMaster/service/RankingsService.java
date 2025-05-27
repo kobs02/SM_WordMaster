@@ -55,11 +55,11 @@ public class RankingsService {
 
             // 업데이트된 경험치를 기반으로 랭킹레벨 업데이트
             RankingLevel rankingLevel;
-            if (exp >= 1000L) { rankingLevel = RankingLevel.Ruby; }
-            else if (exp >= 900L) { rankingLevel = RankingLevel.Diamond; }
-            else if (exp >= 800L) { rankingLevel = RankingLevel.Platinum; }
-            else if (exp >= 700L) { rankingLevel = RankingLevel.Gold; }
-            else if (exp >= 600L) { rankingLevel = RankingLevel.Silver; }
+            if (exp >= 1600L) { rankingLevel = RankingLevel.Ruby; }
+            else if (exp >= 800L) { rankingLevel = RankingLevel.Diamond; }
+            else if (exp >= 400L) { rankingLevel = RankingLevel.Platinum; }
+            else if (exp >= 200L) { rankingLevel = RankingLevel.Gold; }
+            else if (exp >= 100L) { rankingLevel = RankingLevel.Silver; }
             else { rankingLevel = RankingLevel.Bronze; }
 
             // 리포지토리를 통해 업데이트된 경험치와 랭킹레벨을 랭킹 테이블에 반영

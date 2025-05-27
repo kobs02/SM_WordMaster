@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Header } from "@/components/layout/header";
 import type { CEFRLevel } from "@/lib/types";
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 type UnitCountData = {
   level: CEFRLevel;
@@ -26,7 +25,7 @@ export default function UnitPage() {
   useEffect(() => {
     const fetchUnitCounts = async () => {
       try {
-        const res = await fetch(`${baseURL}/api/words/countUnits`);
+        const res = await fetch(`/api/words/countUnits`);
         const json = await res.json();
 
         if (!Array.isArray(json.data)) {

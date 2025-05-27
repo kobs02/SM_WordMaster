@@ -1,4 +1,4 @@
-package com.example.SMU_WordMaster.dto;
+/*package com.example.SMU_WordMaster.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -14,3 +14,4 @@ public class MemberDto {
     private String password;
     private String name;
 }
+*/

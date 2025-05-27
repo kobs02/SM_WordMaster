@@ -8,7 +8,6 @@ import ResultsTable from "@/components/game/results-table"
 import { Header } from "@/components/layout/header"
 import { useAuth } from "@/lib/auth-context"
 import type { Word } from "@/lib/types"
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 type GameType = "multiple" | "writing"
 
@@ -32,28 +31,36 @@ export default function GamePage() {
     if (stateWords && Array.isArray(stateWords)) {
       setWords(stateWords)
       setLoading(false)
-    } else if (bookmarked) {
-      const parsed = JSON.parse(bookmarked)
-      setWords(parsed)
-      setLoading(false)
     }
 
     const fetchWords = async () => {
-      try {
-        const res = await fetch(`${baseURL}/api/words/by-level-unit?level=${level}&unit=${Number(unitId)}`)
-        const data = await res.json()
-        setWords(data)
-      } catch (error) {
-        console.error("단어 불러오기 실패:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
+          try {
+            const res = await fetch(`/api/words/by-level-unit?level=${level}&unit=${Number(unitId)}`)
+            const data = await res.json()
 
-    if (level && unitId) {
-      fetchWords()
-    }
-  }, [location.state, level, unitId])
+            // 디버깅용 코드
+            console.log("🔍 백엔드에서 받은 단어 데이터:", data) // ✅ 여기 추가
+
+              setWords(data)
+              console.log("✅ 단어 목록 로딩 완료:", data)
+            } catch (error) {
+                console.error("단어 불러오기 실패:", error)
+            } finally {
+              setLoading(false)
+            }
+          }
+
+          if (level && unitId) {
+              fetchWords()
+            }
+        /* 디버깅용 코드
+        console.log("현재 상태:");
+        console.log(" - location.state:", location.state);
+        console.log(" - level:", level);
+        console.log(" - unitId:", unitId);
+        */
+
+      }, [location.state, level, unitId])
 
   useEffect(() => {
     if (isGameFinished) {
@@ -70,7 +77,7 @@ export default function GamePage() {
     const spellingList = wrongWords.map((word) => word.spelling);
 
     try {
-      const res = await fetch(`${baseURL}/api/wrongAnswers`, {
+      const res = await fetch(`/api/wrongAnswers`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -97,7 +104,7 @@ export default function GamePage() {
       const wordLevelList = allWords.map((word) => word.level)
 
       try {
-        const res = await fetch(`${baseURL}/api/ranking/update`, {
+        const res = await fetch(`/api/ranking/update`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ loginId: user.loginId, wordLevelList }),

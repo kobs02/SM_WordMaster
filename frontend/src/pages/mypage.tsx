@@ -11,7 +11,6 @@ import { Bookmark, Trophy, BookOpen, GamepadIcon as GameController } from "lucid
 import ExampleCard from "@/components/examples/example-card"
 import { Header } from "@/components/layout/header"
 import type { Sentence, BookmarksResponseDto, RankingsResponseDto, ApiResponse } from "@/lib/types"
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 export default function MyPage() {
   const navigate = useNavigate()
@@ -52,7 +51,7 @@ export default function MyPage() {
   const fetchSentence = async () => {
       if (!user) return null;
       try {
-          const response = await fetch(`${baseURL}/api/sentence/getAllByUser?loginId=${user!.loginId}`);
+          const response = await fetch(`/api/sentence/getAllByUser?loginId=${user!.loginId}`);
 
           if (!response.ok)
               throw new Error("예문 조회 실패");
@@ -85,7 +84,7 @@ export default function MyPage() {
   const fetchBookmarks = async (loginId: string): Promise<BookmarksResponseDto[] | null> => {
       if (!user) return null;
     try {
-      const res = await fetch(`${baseURL}/api/bookmarks/getAllByUser?loginId=${encodeURIComponent(user?.loginId)}`);
+      const res = await fetch(`/api/bookmarks/getAllByUser?loginId=${encodeURIComponent(user?.loginId)}`);
       const json: ApiResponse<BookmarksResponseDto[]> = await res.json();
       if (json.success && Array.isArray(json.data)) {
         setBookmarkedWords(json.data);
@@ -112,7 +111,7 @@ export default function MyPage() {
         if (!user) return null;
 
         try {
-          const res = await fetch(`${baseURL}/api/ranking/get?loginId=${encodeURIComponent(user?.loginId)}`)
+          const res = await fetch(`/api/ranking/get?loginId=${encodeURIComponent(user?.loginId)}`)
           const json = await res.json()
 
           if (json.success && Array.isArray(json.data)) {
@@ -144,7 +143,7 @@ export default function MyPage() {
   const handleRemoveBookmark = async (spelling: string) => {
       if (!user) return null;
     try {
-      const res = await fetch(`${baseURL}/api/bookmarks/delete`, {
+      const res = await fetch(`/api/bookmarks/delete`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

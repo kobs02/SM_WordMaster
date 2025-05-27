@@ -5,7 +5,6 @@ import WordCard from "@/components/learn/word-card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import type { Word } from "@/lib/types";
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 export default function LearnPage() {
   const { level, unitId } = useParams<{ level: string; unitId: string }>();
@@ -23,7 +22,7 @@ export default function LearnPage() {
   useEffect(() => {
     const fetchWords = async () => {
       try {
-        const res = await fetch(`${baseURL}/api/words/by-level-unit?level=${level}&unit=${Number(unitId)}`);
+        const res = await fetch(`/api/words/by-level-unit?level=${level}&unit=${Number(unitId)}`);
         const data = await res.json();
         setWords(data);
       } catch (error) {
