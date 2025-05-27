@@ -34,6 +34,7 @@ public class MemberController {
     ) {
         UserDto loginResult = memberService.login(userDto);
         if (loginResult != null) {
+            session.setAttribute("Id", loginResult.getId());
             session.setAttribute("loginId", loginResult.getLoginId());
             session.setAttribute("loginName", loginResult.getName());
             session.setAttribute("loginRole", loginResult.getRole());
@@ -53,10 +54,12 @@ public class MemberController {
     @GetMapping("/member/session")
     public ResponseEntity<UserDto> session(HttpSession session) {
         String loginId = (String) session.getAttribute("loginId");
+        Long Id = (Long) session.getAttribute("Id");
         if (loginId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         UserDto dto = new UserDto();
+        dto.setId(Id);
         dto.setLoginId(loginId);
         dto.setName((String) session.getAttribute("loginName"));
         dto.setRole((MemberRole) session.getAttribute("loginRole"));

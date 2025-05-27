@@ -3,6 +3,7 @@ package com.example.SMU_WordMaster.repository;
 import com.example.SMU_WordMaster.entity.Level;
 import com.example.SMU_WordMaster.entity.Word;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -20,6 +21,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     // level 기반 20개 단어 조회 (페이징 유사)
     @Query(value = "SELECT * FROM words_table WHERE level = :level ORDER BY word_id LIMIT 20 OFFSET :offset", nativeQuery = true)
     List<Word> findByLevelPaged(@Param("level") String level, @Param("offset") int offset);
-
-    // ❌ spelling 기반 update 제거 (id 기반 업데이트를 사용하므로)
+    @Modifying
+    @Query("DELETE FROM Word w WHERE w.spelling IN :spellings")
+    void deleteBySpellingIn(@Param("spellings") List<String> spellings);
 }

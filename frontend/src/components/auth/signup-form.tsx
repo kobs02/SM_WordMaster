@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card } from "@/components/ui/card"
+import API from "@/lib/api";
 
 export function SignupForm() {
   const navigate = useNavigate()
@@ -20,12 +21,16 @@ export function SignupForm() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // 실제 구현에서는 API 호출로 회원가입 처리
-    console.log("회원가입 데이터:", formData)
-    navigate("/login")
+    try {
+      await API.post("/member/save", formData)
+      navigate("/login")
+    } catch (err: any) {
+      console.error("회원가입 실패:", err.response?.data || err)
+    }
   }
+
 
   return (
     <Card className="p-6">

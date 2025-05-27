@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useAuth } from "@/lib/auth-context"
 import { User, BookOpen } from "lucide-react"
+import {Role} from "@/lib/types";
 
 export function Header() {
   const { user, logout } = useAuth()
@@ -27,7 +28,7 @@ export function Header() {
                 <ThemeToggle />
               </div>
 
-              {!user.role && (
+              {user.role === Role.USER && (
                 <Link to="/mypage">
                   <Button variant="outline"
                   size="sm"

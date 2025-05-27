@@ -1,63 +1,94 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { mockUsers } from "@/lib/mock-data"
-import type { User } from "@/lib/types"
+// src/lib/auth-context.tsx
+import {
+    createContext,
+    useContext,
+    useState,
+    useEffect,
+    ReactNode,
+} from "react";
+import { Role, type User } from "@/lib/types";
 
 interface AuthContextType {
-  user: User | null
-  isLoading: boolean
-  login: (loginId: string, password: string) => Promise<{ success: boolean; message: string }>
-  logout: () => void
+    user: User | null;
+    isLoading: boolean;
+    login: (loginId: string, password: string) => Promise<User>;
+    logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+    const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-  // 페이지 로드 시 로컬 스토리지에서 사용자 정보 복원
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser))
-      } catch (error) {
-        console.error("Failed to parse stored user:", error)
-        localStorage.removeItem("user")
-      }
-    }
-    setIsLoading(false)
-  }, [])
+    // ① 페이지 로드 시 세션 들고 오기
+    useEffect(() => {
+        console.log("🔍 fetchSession start")
+        async function fetchSession() {
+            try {
+                const res = await fetch(
+                    `${import.meta.env.VITE_API_BASE_URL}/api/member/session`,
+                    {
+                        method: "GET",
+                        credentials: "include",   // 쿠키(JSESSIONID)를 보내려면 필수
+                    }
+                );
+                if (res.ok) {
+                    const sessionUser = (await res.json()) as User;
+                    setUser(sessionUser);
+                    console.log("🔍 fetchSession end", sessionUser);  // ← 여기
+                }
+            } catch (err) {
+                console.error("세션 체크 실패", err);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        fetchSession();
+    }, []);
 
-  const login = async (loginId: string, password: string) => {
-    // 실제 구현에서는 API 호출로 대체
-    const isUser = mockUsers.find(
-      (user) => user.loginId === loginId && user.password === password,
-    )
+    // ② 로그인 함수에도 credentials 포함
+    const login = async (loginId: string, password: string) => {
+        const res = await fetch(
+            `${import.meta.env.VITE_API_BASE_URL}/api/member/login`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ loginId, password }),
+            }
+        );
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({} as any));
+            throw new Error(err.message || `로그인 실패 (${res.status})`);
+        }
+        const loggedUser = (await res.json()) as User;
+        console.log("서버에서 받은 role:", loggedUser.role, typeof loggedUser.role);
+        setUser(loggedUser);
+        return loggedUser;
+    };
 
-    if (isUser) {
-      // loginId가 PK이므로, 보안을 위해 비밀번호는 저장하지 않음
-      const { password: _, ...userWithoutPassword } = isUser
-      setUser(userWithoutPassword)
-      localStorage.setItem("user", JSON.stringify(userWithoutPassword))
-      return { success: true, message: "로그인 성공" }
-    }
+    // ③ 로그아웃 시 세션 제거
+    const logout = async () => {
+        await fetch(
+            `${import.meta.env.VITE_API_BASE_URL}/api/member/logout`,
+            {
+                method: "POST",
+                credentials: "include",
+            }
+        );
+        setUser(null);
+    };
 
-    return { success: false, message: "아이디 또는 비밀번호가 올바르지 않습니다." }
-  }
-
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem("user")
-  }
-
-  return <AuthContext.Provider value={{ user, isLoading, login, logout }}>{children}</AuthContext.Provider>
+    return (
+        <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+            {children}
+        </AuthContext.Provider>
+    );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
-  }
-  return context
+    const ctx = useContext(AuthContext);
+    if (!ctx) throw new Error("AuthProvider로 감싸주세요");
+    return ctx;
 }

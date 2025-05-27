@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,16 +74,18 @@ public class WordService {
         }).toList();
     }
 
-    // ✅ 유닛 수 세기
     public List<CountUnitsResponseDto> countUnits() {
-        if (wordRepository.count() == 0) return null;
+        // wordRepository.count()가 0일 때는 빈 리스트를 돌려주는 편이 좋습니다.
+        if (wordRepository.count() == 0)
+            return Collections.emptyList();
 
         List<CountUnitsResponseDto> result = new ArrayList<>();
-        for (Level l : Level.values()) {
-            int count = wordRepository.countByLevel(l);
-            if (count > 0) {
-                count = (int) Math.ceil((double) count / 20);
-                result.add(new CountUnitsResponseDto(l, count));
+        for (Level level : Level.values()) {
+            int totalWords = wordRepository.countByLevel(level);
+            if (totalWords > 0) {
+                // 단어 20개당 1유닛으로 계산
+                int units = (int) Math.ceil((double) totalWords / 20);
+                result.add(new CountUnitsResponseDto(level, units));
             }
         }
         return result;
@@ -119,10 +122,15 @@ public class WordService {
             Word wordEntity = utils.getWordsEntity(s);
             wordRepository.deleteById(wordEntity.getWordId());
         }
+    }@Transactional
+    public void deleteWords(List<String> spellings) {
+        // 예: JPA Repository 에 deleteBySpellingIn(List<String>) 같은 커스텀 메서드 구현
+        wordRepository.deleteBySpellingIn(spellings);
     }
     // Entity → DTO
     private WordDto toDto(Word entity) {
         return new WordDto(
+                entity.getWordId(),
                 entity.getSpelling(),
                 entity.getMean(),
                 entity.getLevel().name()
@@ -132,6 +140,7 @@ public class WordService {
     // DTO → Entity
     private Word toEntity(WordDto dto) {
         Word word = new Word();
+        word.setWordId(dto.getWordId());
         word.setSpelling(dto.getSpelling());
         word.setMean(dto.getMean());
         word.setLevel(Level.valueOf(dto.getLevel()));

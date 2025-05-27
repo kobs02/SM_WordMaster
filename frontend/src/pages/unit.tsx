@@ -27,17 +27,20 @@ export default function UnitPage() {
     const fetchUnitCounts = async () => {
       try {
         const res = await fetch(`${baseURL}/api/words/countUnits`);
-        const json = await res.json();
+        if (!res.ok) {
+          console.error("countUnits 응답 status:", res.status, res.statusText);
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
 
-        if (!Array.isArray(json.data)) {
+        const list = await res.json() as Array<{ level: string; count: number }>;
+        if (!Array.isArray(list)) {
           throw new Error("API 응답 형식이 올바르지 않습니다.");
         }
 
-        const counts: Record<CEFRLevel, number> = {} as any;
-
-        json.data.forEach((entry: UnitCountData) => {
-          counts[entry.level] = entry.count;
-        });
+        const counts = list.reduce<Record<CEFRLevel, number>>((acc, { level, count }) => {
+          acc[level as CEFRLevel] = count;
+          return acc;
+        }, {} as Record<CEFRLevel, number>);
 
         setUnitCounts(counts);
       } catch (err) {
@@ -49,6 +52,7 @@ export default function UnitPage() {
 
     fetchUnitCounts();
   }, []);
+
 
   const handleSelect = (unitId: number) => {
     const path = mode === "learn"

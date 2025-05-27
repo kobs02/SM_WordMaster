@@ -30,7 +30,7 @@ public class MemberService {
         Optional<Users> byLoginId = usersRepository.findByLoginId(userDto.getLoginId());
         if(byLoginId.isPresent()){
             // 조회 결과가 있다
-            Users users = byLoginId.get(); // Optional에서 꺼냄
+            Users users = byLoginId.get(); // Optional 에서 꺼냄
             if(users.getPassword().equals(userDto.getPassword())) {
                 //비밀번호 일치
                 //entity -> dto 변환 후 리턴

@@ -18,6 +18,7 @@ public class dbLoaderWordRepository {
     // RowMapper는 단어 DB 결과(ResultSet)을 자바 객체(Word)로 변환해줌
     private final RowMapper<WordDto> wordRowMapper = (rs, rowNum) ->
             new WordDto(
+                    rs.getLong("word_id"),
                     rs.getString("spelling"),
                     rs.getString("mean"),
                     rs.getString("level")

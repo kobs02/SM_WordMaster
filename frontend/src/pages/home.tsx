@@ -5,6 +5,7 @@ import AdminDashboard from "@/components/admin/admin-dashboard"
 import UserDashboard from "@/components/user/user-dashboard"
 import { User } from "lucide-react"
 import { Header } from "@/components/layout/header"
+import {Role} from "@/lib/types";
 
 export default function HomePage() {
   const { user } = useAuth()
@@ -17,7 +18,7 @@ export default function HomePage() {
         <main className="container mx-auto px-4 py-8 flex-grow max-w-screen-xl flex items-center justify-center mb-50">
           {user ? (
             <div className="w-full text-center">
-              {user.role ? <AdminDashboard /> : <UserDashboard />}
+                {user.role === Role.ADMIN? <AdminDashboard /> :<UserDashboard />}
             </div>
           ) : (
             <div className="text-center py-12">

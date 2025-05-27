@@ -34,6 +34,7 @@ public class UserDto { //회원 정보를 필드로 정의
     /** DTO → Entity 변환 (저장/로그인 요청용) */
     public Users toEntity() {
         Users entity = new Users();
+        entity.setId(this.id);
         entity.setLoginId(this.loginId);
         entity.setPassword(this.password);
         entity.setName(this.name);

@@ -3,9 +3,9 @@ import { Header } from "@/components/layout/header"
 
 export default function LoginPage() {
   return (
-    <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen">
 
-      <Header />
+          <Header />
 
       <main className="flex-grow flex items-center justify-center px-4 py-8 mb-50">
         <div className="max-w-md w-full">

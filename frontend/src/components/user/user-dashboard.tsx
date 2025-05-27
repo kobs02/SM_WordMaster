@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { BookOpen, GamepadIcon as GameController, Calendar, AlertTriangle, Trophy } from "lucide-react"
+import {Header} from "@/components/layout/header";
 
 export default function UserDashboard() {
   const navigate = useNavigate()
@@ -57,29 +58,45 @@ export default function UserDashboard() {
       navigate(item.path)
     }
   }
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-      {menuItems.map((item) => (
-        <Card key={item.title} className="overflow-hidden border dark:border-gray-700">
-          <CardHeader className={`${item.color}`}>
-            <div className="flex justify-between items-center">
-              <CardTitle className={`text-lg ${item.iconColor}`}>{item.title}</CardTitle>
-              <item.icon className={`h-6 w-6 ${item.iconColor}`} />
-            </div>
-            <CardDescription className={`dark:text-gray-300 ${item.textColor}`}>{item.description}</CardDescription>
-          </CardHeader>
-          <CardFooter className="pt-4 bg-card dark:bg-gray-800">
-            <Button
-              variant="outline"
-              className="w-full dark:text-gray-200 dark:border-gray-600"
-              onClick={() => handleClick(item)}
-            >
-              이동하기
-            </Button>
-          </CardFooter>
-        </Card>
-      ))}
-    </div>
+      <div className="flex flex-col min-h-screen">
+        <Header />
+
+        <main className="container mx-auto px-4 py-8 flex-grow">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            {menuItems.map((item) => (
+                <Card
+                    key={item.title}
+                    className="overflow-hidden border dark:border-gray-700"
+                >
+                  <CardHeader className={item.color}>
+                    <div className="flex justify-between items-center">
+                      <CardTitle className={`text-lg ${item.iconColor}`}>
+                        {item.title}
+                      </CardTitle>
+                      <item.icon
+                          className={`h-6 w-6 ${item.iconColor}`}
+                      />
+                    </div>
+                    <CardDescription
+                        className={`dark:text-gray-300 ${item.textColor}`}
+                    >
+                      {item.description}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardFooter className="pt-4 bg-card dark:bg-gray-800">
+                    <Button
+                        variant="outline"
+                        className="w-full dark:text-gray-200 dark:border-gray-600"
+                        onClick={() => handleClick(item)}
+                    >
+                      이동하기
+                    </Button>
+                  </CardFooter>
+                </Card>
+            ))}
+          </div>
+        </main>
+      </div>
   )
 }

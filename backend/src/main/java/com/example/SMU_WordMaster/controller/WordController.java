@@ -1,15 +1,17 @@
 package com.example.SMU_WordMaster.controller;
 
+import com.example.SMU_WordMaster.dto.CountUnitsResponseDto;
 import com.example.SMU_WordMaster.dto.WordDto;
 import com.example.SMU_WordMaster.dto.UpdateWordRequestDto;
+import com.example.SMU_WordMaster.repository.WordRepository;
 import com.example.SMU_WordMaster.service.WordService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000") // React 연동용 CORS 설정
 @RestController
 @RequestMapping("/api/words")
 @RequiredArgsConstructor
@@ -32,14 +34,18 @@ public class WordController {
     ) {
         return wordService.getWordsDtoByLevelAndUnit(level, unit);
     }
-
-    /*
-    // ✅ 유닛 수 세기
-    @GetMapping("/countUnits")
-    public CountUnitsResponseDto countUnits(@RequestParam String level) {
-        return wordService.countUnitsByLevel(level);
+    @GetMapping("/doesWordExist")
+    public ResponseEntity<Boolean> doesWordExist(@RequestParam String spelling) {
+        boolean exists = wordService.doesWordExist(spelling);
+        return ResponseEntity.ok(exists);
     }
-     */
+    // ✅ 유닛 수 세기
+    /** GET /api/words/countUnits → [{ level, count }, …] */
+    @GetMapping("/countUnits")
+    public ResponseEntity<List<CountUnitsResponseDto>> countUnits() {
+        List<CountUnitsResponseDto> list = wordService.countUnits();
+        return ResponseEntity.ok(list);
+    }
 
     // ✅ 단어 등록
     @PostMapping("/bulk")
@@ -47,7 +53,14 @@ public class WordController {
         List<WordDto> saved = wordService.addWord(wordList);
         return ResponseEntity.ok(saved);
     }
-
+    /**
+     * ✅ bulk delete: /api/words?wordList=aa&wordList=bb&…
+     */
+    @DeleteMapping
+    public ResponseEntity<Void> deleteWords(@RequestParam List<String> wordList) {
+        wordService.deleteWords(wordList);
+        return ResponseEntity.noContent().build();
+    }
 
 
     // ✅ 단어 수정
@@ -55,9 +68,7 @@ public class WordController {
     public ResponseEntity<com.example.SMU_WordMaster.entity.Word> updateWord(
             @PathVariable Long id,
             @RequestBody UpdateWordRequestDto updateDto
-    ) {
-        return ResponseEntity.ok(wordService.updateWord(id, updateDto));
-    }
+    ) {return ResponseEntity.ok(wordService.updateWord(id, updateDto));}
 
     // ✅ 단어 삭제
     @DeleteMapping("/{id}")

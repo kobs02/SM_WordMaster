@@ -8,10 +8,11 @@ export interface Word {
 }
 
 export interface User {
+  id: number;
   loginId: string
   password?: string /*로그인 시, id와의 매핑 여부만 검사하고, 그 이후로는 사용하지 않음*/
   name: string
-  role: boolean /*관리자면 true, 사용자면 false*/
+  role: Role /*관리자면 true, 사용자면 false*/
 }
 
 export interface Sentence {
@@ -54,4 +55,8 @@ export interface RankingsResponseDto {
     name: string;
     rankingLevel: "Bronze" | "Silver" | "Gold" | "Platinum" | "Ruby" | "Diamond"
     exp: number;
+}
+export enum Role {
+  USER = "USER",
+  ADMIN = "ADMIN",
 }
