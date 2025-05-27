@@ -20,7 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ServiceUtils {
     private final UsersRepository usersRepository;
-    private final WordsRepository wordsRepository;
+    private final WordRepository wordRepository;
     private final SentencesRepository sentencesRepository;
     private final BookmarksRepository bookmarksRepository;
     private final RankingsRepository rankingsRepository;
@@ -30,27 +30,27 @@ public class ServiceUtils {
                 .orElseThrow(() -> new LoginIdNotFoundException(loginId));
     }
 
-    public Words getWordsEntity(String spelling) {
-        return wordsRepository.findBySpelling(spelling)
+    public Word getWordsEntity(String spelling) {
+        return wordRepository.findBySpelling(spelling)
                 .orElseThrow(() -> new WordNotFoundException(spelling));
     }
 
-    public Sentences getSentencesEntity(Users userEntity, Words wordEntity) {
-        return sentencesRepository.findTopByUsersAndWordsOrderBySentenceId(userEntity, wordEntity)
+    public Sentences getSentencesEntity(Users userEntity, Word wordEntity) {
+        return sentencesRepository.findTopByUsersAndWordOrderBySentenceId(userEntity, wordEntity)
                 .orElseThrow(() -> new SentencesNotFoundByWordException(wordEntity.getSpelling()));
     }
 
-    public List<SentencesResponseDto> getSentencesList(Users userEntity, Words wordEntity) {
+    public List<SentencesResponseDto> getSentencesList(Users userEntity, Word wordEntity) {
         List<SentencesResponseDto> result = new ArrayList<>();
         List<Sentences> sentencesList;
 
         if (wordEntity == null)
             sentencesList = sentencesRepository.findByUsers(userEntity);
         else
-            sentencesList = sentencesRepository.findByUsersAndWords(userEntity, wordEntity);
+            sentencesList = sentencesRepository.findByUsersAndWord(userEntity, wordEntity);
 
         for (Sentences s: sentencesList) {
-            String spelling = s.getWords().getSpelling();
+            String spelling = s.getWord().getSpelling();
             String sentence = s.getSentence();
             String translation = s.getTranslation();
 
@@ -66,7 +66,7 @@ public class ServiceUtils {
         List<Bookmarks> bookmarksList = bookmarksRepository.findByUsers(userEntity);
 
         for (Bookmarks b: bookmarksList) {
-            Words wordEntity = b.getWords();
+            Word wordEntity = b.getWord();
             String spelling = wordEntity.getSpelling();
             String mean = wordEntity.getMean();
             Level level = wordEntity.getLevel();

@@ -10,7 +10,8 @@ import java.util.Optional;
 // 사용자 정보를 관리하는 JPA 리포지토리
 public interface UsersRepository extends JpaRepository<Users, Long> {
     Optional<Users> findByLoginId(String loginId);
+    boolean existsByLoginId(String loginId);
 
-    @Query("SELECT COUNT(u) FROM Users u WHERE u.role = false")
+    @Query("SELECT COUNT(u) FROM Users u WHERE u.role = 0")
     int countUsers();
 }

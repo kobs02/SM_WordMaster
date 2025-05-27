@@ -4,9 +4,9 @@ import com.example.SMU_WordMaster.dto.UpdateWrongAnswersRequestDto;
 import com.example.SMU_WordMaster.dto.WrongAnswerResponseDto;
 import com.example.SMU_WordMaster.entity.Level;
 import com.example.SMU_WordMaster.entity.Users;
-import com.example.SMU_WordMaster.entity.Words;
+import com.example.SMU_WordMaster.entity.Word;
 import com.example.SMU_WordMaster.entity.WrongAnswers;
-import com.example.SMU_WordMaster.repository.WordsRepository;
+import com.example.SMU_WordMaster.repository.WordRepository;
 import com.example.SMU_WordMaster.repository.WrongAnswersRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import java.util.List;
 public class WrongAnswersService {
     private final ServiceUtils utils;
     private final WrongAnswersRepository wrongAnswersRepository;
-    private final WordsRepository wordsRepository;
+    private final WordRepository wordRepository;
 
     public List<WrongAnswerResponseDto> getWrongAnswers(String loginId) {
         Users userEntity = utils.getUserEntity(loginId);
@@ -29,7 +29,7 @@ public class WrongAnswersService {
         List<WrongAnswerResponseDto> result = new ArrayList<>();
 
         for (WrongAnswers w : wrongAnswersList) {
-            Words wordEntity = w.getWords();
+            Word wordEntity = w.getWord();
             String spelling = wordEntity.getSpelling();
             String mean = wordEntity.getMean();
             Level level = wordEntity.getLevel();
@@ -49,11 +49,11 @@ public class WrongAnswersService {
         List<String> spellingList = dto.getSpellingList();
 
         for (String s : spellingList) {
-            Words wordEntity = utils.getWordsEntity(s);
-            if (!wrongAnswersRepository.existsByUsersAndWords(userEntity, wordEntity)) {
+            Word wordEntity = utils.getWordsEntity(s);
+            if (!wrongAnswersRepository.existsByUsersAndWord(userEntity, wordEntity)) {
                 WrongAnswers wrongAnswerEntity = new WrongAnswers();
                 wrongAnswerEntity.setUsers(userEntity);
-                wrongAnswerEntity.setWords(wordEntity);
+                wrongAnswerEntity.setWord(wordEntity);
                 wrongAnswerEntity.setCount(1);
                 wrongAnswersRepository.save(wrongAnswerEntity);
             }

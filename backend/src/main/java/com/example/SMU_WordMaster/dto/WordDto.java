@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Word {
+public class WordDto {
     private String spelling;
     private String mean;
     private String level;

@@ -3,11 +3,11 @@ package com.example.SMU_WordMaster.service;
 import com.example.SMU_WordMaster.dto.SentencesResponseDto;
 import com.example.SMU_WordMaster.entity.Sentences;
 import com.example.SMU_WordMaster.entity.Users;
-import com.example.SMU_WordMaster.entity.Words;
+import com.example.SMU_WordMaster.entity.Word;
 import com.example.SMU_WordMaster.exception.*;
 import com.example.SMU_WordMaster.repository.SentencesRepository;
 import com.example.SMU_WordMaster.repository.UsersRepository;
-import com.example.SMU_WordMaster.repository.WordsRepository;
+import com.example.SMU_WordMaster.repository.WordRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +26,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SentencesService {
 
-    private final WordsRepository wordsRepository;
+    private final WordRepository wordRepository;
     private final SentencesRepository sentencesRepository;
     private final UsersRepository usersRepository;
 
@@ -97,10 +96,10 @@ public class SentencesService {
     // 해당 사용자, 단어 조합의 예문이 20개 이상인 경우 가장 오래된 예문 삭제
     public void deleteOldestSentenceIfOverLimit(String loginId, String spelling) {
         Users userEntity = utils.getUserEntity(loginId);
-        Words wordEntity = utils.getWordsEntity(spelling);
+        Word wordEntity = utils.getWordsEntity(spelling);
 
         try {
-            if (sentencesRepository.countByUsersAndWords(userEntity, wordEntity) >= 20) {
+            if (sentencesRepository.countByUsersAndWord(userEntity, wordEntity) >= 20) {
                 Sentences sentenceEntity = utils.getSentencesEntity(userEntity, wordEntity);
                 Long minId = sentenceEntity.getSentenceId();
 
@@ -113,7 +112,7 @@ public class SentencesService {
     // 주어진 사용자와 단어에 해당하는 예문 1개를 예문 엔티티에 저장
     public void saveSentence(String loginId, String spelling, String sentence, String translation) {
         Users userEntity = utils.getUserEntity(loginId);
-        Words wordEntity = utils.getWordsEntity(spelling);
+        Word wordEntity = utils.getWordsEntity(spelling);
 
         if (sentence == null || sentence.isBlank()) { throw new IllegalArgumentException("해당 예문은 null이거나 비어 있습니다"); }
         if (translation == null || translation.isBlank()) { throw new IllegalArgumentException("해당 예문 뜻은 null이거나 비어 있습니다"); }
@@ -122,7 +121,7 @@ public class SentencesService {
             Sentences sentences = new Sentences();
 
             sentences.setUsers(userEntity);
-            sentences.setWords(wordEntity);
+            sentences.setWord(wordEntity);
             sentences.setSentence(sentence);
             sentences.setTranslation(translation);
 
@@ -134,7 +133,7 @@ public class SentencesService {
     // 해당 사용자가 주어진 단어로 생성한 모든 예문을 SentencesResponseDto 리스트 형태로 반환
     public List<SentencesResponseDto> getAllSentencesByWord(String loginId, String spelling) {
         Users userEntity = utils.getUserEntity(loginId);
-        Words wordEntity = utils.getWordsEntity(spelling);
+        Word wordEntity = utils.getWordsEntity(spelling);
 
         try { return utils.getSentencesList(userEntity, wordEntity); }
         catch (Exception e) { throw new SentencesFindFailedException(loginId, spelling, e); }

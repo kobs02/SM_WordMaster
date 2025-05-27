@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class Words {
+public class Word {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "word_id")
@@ -31,14 +31,14 @@ public class Words {
     private Level level;
 
     // Bookmarks 연관관계 (1:N)
-    @OneToMany(mappedBy = "words", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "word", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookmarks> bookmarks = new ArrayList<>();
 
     // Sentences 연관관계 (1:N)
-    @OneToMany(mappedBy = "words", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "word", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Sentences> sentences = new ArrayList<>();
 
     // WrongAnswers 연관관계 (1:N)
-    @OneToMany(mappedBy = "words", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "word", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WrongAnswers> wrongAnswers = new ArrayList<>();
 }

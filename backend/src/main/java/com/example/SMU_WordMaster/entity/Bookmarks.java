@@ -11,7 +11,7 @@ import lombok.ToString;
 @Setter
 @Getter
 // Bookmarks 엔티티에서 Users, Words와의 연관관계로 인해 toString() 무한 순환을 방지하기 위해 제외
-@ToString(exclude = {"users", "words"})
+@ToString(exclude = {"users", "word"})
 public class Bookmarks {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,5 +24,5 @@ public class Bookmarks {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "word_id")
-    private Words words;
+    private Word word;
 }

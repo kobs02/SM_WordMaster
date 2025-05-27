@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class CountUnitsResponseDto {
+public class    CountUnitsResponseDto {
     private Level level;
     private int count;
 }

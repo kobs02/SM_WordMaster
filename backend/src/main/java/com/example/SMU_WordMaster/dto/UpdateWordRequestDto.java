@@ -1,5 +1,6 @@
 package com.example.SMU_WordMaster.dto;
 
+import com.example.SMU_WordMaster.entity.Level;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UpdateWordRequestDto {
     private String spelling;
-    private String newSpelling;
-    private String newMean;
+    private String mean;
+    private Level level;
 }

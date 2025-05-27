@@ -1,6 +1,6 @@
 package com.example.SMU_WordMaster.controller;
-import com.example.SMU_WordMaster.dto.CountUnitsResponseDto;
-import com.example.SMU_WordMaster.dto.Word;
+
+import com.example.SMU_WordMaster.dto.WordDto;
 import com.example.SMU_WordMaster.dto.UpdateWordRequestDto;
 import com.example.SMU_WordMaster.service.WordService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:3000") // React 연동용 CORS 설정
 @RestController
 @RequestMapping("/api/words")
 @RequiredArgsConstructor
@@ -17,58 +18,51 @@ public class WordController {
     private final WordService wordService;
     private final ControllerUtils utils;
 
-    // 전체 단어 목록 반환 (DTO 리스트)
+    // ✅ 전체 단어 조회 (DTO 리스트)
     @GetMapping
-    public List<Word> getAllWords() {
+    public List<WordDto> getAllWords() {
         return wordService.getAllWords();
     }
 
-    // 🔹 레벨과 유닛 기준으로 단어 조회 (DTO 반환) — 🔧 수정된 부분
+    // ✅ 레벨과 유닛 기준 단어 조회
     @GetMapping("/by-level-unit")
-    public List<Word> getWordsDtoByLevelAndUnit(
+    public List<WordDto> getWordsDtoByLevelAndUnit(
             @RequestParam String level,
             @RequestParam int unit
     ) {
-        // Words 엔티티가 아닌 Word DTO를 반환하도록 수정
         return wordService.getWordsDtoByLevelAndUnit(level, unit);
     }
 
+    /*
+    // ✅ 유닛 수 세기
     @GetMapping("/countUnits")
-    public ResponseEntity<?> countUnits() {
-        try {
-            List<CountUnitsResponseDto> countUnitsList = wordService.countUnits();
-            return utils.getSuccessResponse("정상적으로 레벨별 유닛 개수를 반환했습니다.", countUnitsList);
-        }
-        catch (Exception e) { return utils.assertBySystem(e); }
+    public CountUnitsResponseDto countUnits(@RequestParam String level) {
+        return wordService.countUnitsByLevel(level);
+    }
+     */
+
+    // ✅ 단어 등록
+    @PostMapping("/bulk")
+    public ResponseEntity<List<WordDto>> createWords(@RequestBody List<WordDto> wordList) {
+        List<WordDto> saved = wordService.addWord(wordList);
+        return ResponseEntity.ok(saved);
     }
 
-    @GetMapping("/doesWordExist")
-    public ResponseEntity<?> doesWordExist(@RequestParam String spelling) {
-        try {
-            boolean doesExist = wordService.doesWordExist(spelling);
-            return utils.getSuccessResponse("정상적으로 해당 단어 존재 여부를 확인했습니다: " + spelling, doesExist);
-        }
-        catch (Exception e) { return utils.assertBySystem(e); }
+
+
+    // ✅ 단어 수정
+    @PutMapping("/{id}")
+    public ResponseEntity<com.example.SMU_WordMaster.entity.Word> updateWord(
+            @PathVariable Long id,
+            @RequestBody UpdateWordRequestDto updateDto
+    ) {
+        return ResponseEntity.ok(wordService.updateWord(id, updateDto));
     }
 
-    // 단어 추가
-    @PostMapping
-    public void addWord(@RequestBody List<Word> wordList) {
-        wordService.addWord(wordList);
-    }
-
-    // 단어 삭제
-    @DeleteMapping
-    public void deleteWord(@RequestParam List<String> wordList) {
-        wordService.deleteWord(wordList);
-    }
-
-    // 단어 수정
-    @PatchMapping
-    public void updateWord(@RequestBody UpdateWordRequestDto dto) {
-        String spelling = dto.getSpelling();
-        String newSpelling = dto.getNewSpelling();
-        String newMean = dto.getNewMean();
-        wordService.updateWord(spelling, newSpelling, newMean);
+    // ✅ 단어 삭제
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteWord(@PathVariable Long id) {
+        wordService.deleteWord(id);
+        return ResponseEntity.noContent().build();
     }
 }

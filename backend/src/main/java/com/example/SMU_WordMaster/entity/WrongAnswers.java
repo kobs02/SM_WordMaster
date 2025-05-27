@@ -10,7 +10,7 @@ import lombok.ToString;
 @Table(name="wrong_answers_table")
 @Getter
 @Setter
-@ToString(exclude={"users", "words"})
+@ToString(exclude={"users", "word"})
 public class WrongAnswers {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class WrongAnswers {
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="word_id")
-    private Words words;
+    private Word word;
 
     @Column(name="count", columnDefinition = "INT DEFAULT 0")
     private int count = 0;
