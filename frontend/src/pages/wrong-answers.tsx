@@ -21,7 +21,10 @@ export default function WrongAnswersPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-      if (!user) return;
+      if (!user?.loginId) {
+          setLoading(false); // ❗user 정보가 없더라도 로딩 종료
+          return;
+        }
     const fetchWrongAnswers = async () => {
       try {
         const res = await fetch(`/api/wrongAnswers?loginId=${encodeURIComponent(user.loginId)}`)

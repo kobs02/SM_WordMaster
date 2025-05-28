@@ -155,6 +155,8 @@ export default function AdminDashboard() {
   const handleDeleteWords = async () => {
     if (Object.keys(selectedWords).length !== 20 || levelConflict) return;
 
+    console.log("hi");
+
     try {
       const spellingList = Object.values(selectedWords).map((word) => word.spelling);
 
