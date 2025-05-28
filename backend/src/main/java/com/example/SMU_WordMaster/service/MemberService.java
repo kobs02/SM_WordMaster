@@ -23,10 +23,6 @@ public class MemberService {
         Users saved = usersRepository.save(entity);
         return UserDto.toMemberDTO(saved);
     }
-    // 로그인 이메일 중복 검사 기능
-    public boolean checkLoginIdDuplicate(String memberEmail) {
-        return usersRepository.existsByLoginId(memberEmail);
-    }
 
     // 로그인 서비스
     public UserDto login(UserDto userDto){
@@ -87,5 +83,21 @@ public class MemberService {
         if (password.equals(userEntity.getPassword()))
             match = true;
         return match;
+    }
+
+    // 아이디 중복 여부 검사
+    public boolean existsLoginId(String loginId) {
+        boolean result = true;
+        if (!usersRepository.existsByLoginId(loginId))
+            result = false;
+        return result;
+    }
+
+    // 로그인이 안 될 경우, 아이디의 문제인지, 비밀번호의 문제인지 파악
+    public boolean[] checkLoginIdAndPassword(String loginId, String password) {
+        boolean loginIdExists = usersRepository.existsByLoginId(loginId);
+        boolean passwordExists = usersRepository.existsByPassword(password);
+
+        return new boolean[] { loginIdExists, passwordExists };
     }
 }

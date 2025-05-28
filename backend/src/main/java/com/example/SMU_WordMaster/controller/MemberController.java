@@ -5,12 +5,14 @@ import com.example.SMU_WordMaster.entity.MemberRole;
 import com.example.SMU_WordMaster.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
+import org.apache.catalina.connector.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -30,19 +32,29 @@ public class MemberController {
     }
     /** 로그인 */
     @PostMapping("/login")
-    public ResponseEntity<UserDto> login(
+    public ResponseEntity<?> login(
             @RequestBody UserDto userDto,
             HttpSession session
     ) {
         UserDto loginResult = memberService.login(userDto);
+
         if (loginResult != null) {
             session.setAttribute("loginId", loginResult.getLoginId());
             session.setAttribute("loginName", loginResult.getName());
             session.setAttribute("loginRole", loginResult.getRole());
             return ResponseEntity.ok(loginResult);
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        // 로그인 실패 시 원인 확인
+        boolean[] reason = memberService.checkLoginIdAndPassword(userDto.getLoginId(), userDto.getPassword());
+
+        Map<String, Object> errorBody = new HashMap<>();
+        errorBody.put("message", "로그인에 실패했습니다.");
+        errorBody.put("reason", reason); // "loginId" 또는 "password" 또는 ""
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorBody);
     }
+
 
     /** 로그아웃 */
     @PostMapping("/logout")
@@ -104,6 +116,16 @@ public class MemberController {
             String loginId = (String) session.getAttribute("loginId");
             boolean match = memberService.checkPassword(loginId, password);
             return utils.getSuccessResponse("정상적으로 비밀번호와의 일치 여부를 검증했습니다.", match);
+        }
+        catch (Exception e) { return utils.assertBySystem(e); }
+    }
+
+    // 아이디 중복 여부 검사
+    @GetMapping("existsLoginId")
+    public ResponseEntity<?> existsLoginId(@RequestParam String loginId) {
+        try {
+            boolean result = memberService.existsLoginId(loginId);
+            return utils.getSuccessResponse("정상적으로 아이디 중복 여부를 검사했습니다.", result);
         }
         catch (Exception e) { return utils.assertBySystem(e); }
     }

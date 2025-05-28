@@ -48,25 +48,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     // ② 로그인 함수에도 credentials 포함
-    const login = async (loginId: string, password: string) => {
-        const res = await fetch(
-            `/api/member/login`,
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ loginId, password }),
-            }
-        );
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({} as any));
-            throw new Error(err.message || `로그인 실패 (${res.status})`);
+    const login = async (loginId: string, password: string): Promise<User> => {
+      const res = await fetch("/api/member/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // 세션 유지
+        body: JSON.stringify({ loginId, password }),
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          const errorBody = await res.json();
+          const reason = errorBody?.reason; // ← boolean[]
+          const error = new Error("로그인 실패 (401)");
+          (error as any).reason = reason; // ex) [true, false]
+          throw error;
+        } else {
+          throw new Error("예상치 못한 로그인 오류");
         }
-        const loggedUser = (await res.json()) as User;
-        console.log("서버에서 받은 role:", loggedUser.role, typeof loggedUser.role);
-        setUser(loggedUser);
-        return loggedUser;
+      }
+
+      const user = await res.json();
+      setUser(user);
+      return user;
     };
+
 
     // ③ 로그아웃 시 세션 제거
     const logout = async () => {

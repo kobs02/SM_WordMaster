@@ -40,6 +40,8 @@ export default function AdminDashboard() {
   const [editingWord, setEditingWord] = useState<Word | null>(null)
   const [tempEditWord, setTempEditWord] = useState<Word | null>(null)
   const [isComposing, setIsComposing] = useState(false);
+  const [duplicateSpelling, setDuplicateSpelling] = useState(false);
+
 
   const validWords = newWords.filter((w) => w.spelling.trim() !== "" && w.mean.trim() !== "")
   const validWordCount = validWords.length
@@ -228,6 +230,25 @@ export default function AdminDashboard() {
       console.error("중복 확인 실패", e)
     }
   }
+
+  const handleCheckDuplicateSpelling = async (spelling: string) => {
+    if (!spelling.trim()) return;
+
+    if (spelling.trim().toLowerCase() === editingWord?.spelling.toLowerCase()) {
+      setDuplicateSpelling(false); // 자기 자신은 중복 아님
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/words/doesWordExist?spelling=${encodeURIComponent(spelling)}`);
+      const json = await res.json();
+      setDuplicateSpelling(json.data === true);
+    } catch (e) {
+      console.error("중복 확인 실패", e);
+      setDuplicateSpelling(false);
+    }
+  };
+
 
   const handleEditSave = async () => {
     if (!editingWordId || !editField) return
@@ -512,14 +533,18 @@ export default function AdminDashboard() {
                           const value = e.target.value;
                           if (/^[a-zA-Z\s]*$/.test(value)) {
                             setTempEditWord((prev) => prev && { ...prev, spelling: value });
+                            handleCheckDuplicateSpelling(value);
                           } else {
                             setTempEditWord((prev) => prev && { ...prev, spelling: "" }); // 잘못된 입력 시 초기화
+                            setDuplicateSpelling(false);
                           }
                         }}
                       />
-                        {tempEditWord?.spelling && !/^[a-zA-Z\s]*$/.test(tempEditWord.spelling) && (
+                        {tempEditWord?.spelling && !/^[a-zA-Z\s]*$/.test(tempEditWord.spelling) ? (
                           <p className="text-sm text-red-500">영어와 공백만 입력 가능합니다.</p>
-                        )}
+                        ) : duplicateSpelling ? (
+                          <p className="text-sm text-red-500">이미 존재하는 단어입니다.</p>
+                        ) : null}
                       <Input
                         placeholder="한글 뜻"
                         value={tempEditWord?.mean || ""}

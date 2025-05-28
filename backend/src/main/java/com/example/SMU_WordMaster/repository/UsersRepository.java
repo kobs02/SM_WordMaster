@@ -33,4 +33,7 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
     @Modifying
     @Query("UPDATE Users u SET u.name = :name, u.password = :password WHERE u.loginId = :loginId")
     void updatePassword(@Param("loginId") String loginId, @Param("password") String password);
+
+    // 비밀번호 존재 여부 검증
+    boolean existsByPassword(String password);
 }

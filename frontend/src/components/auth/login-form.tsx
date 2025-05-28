@@ -32,28 +32,35 @@ export function LoginForm() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const { loginId, password } = formData
+    e.preventDefault();
+    const { loginId, password } = formData;
 
-    setError("")
-    setIsLoading(true)
+    setError("");
+    setIsLoading(true);
 
     try {
-      // auth-context의 login 함수를 호출
-      const user: User = await login(loginId, password)
-      console.log("로그인된 유저:", user);           // 디버그용
-
-      // 로그인에 성공하면 role에 따라 리디렉트
-      navigate("/")
+      const user: User = await login(loginId, password);
+      navigate("/");
     } catch (err: any) {
-      // 로그인 실패 시 에러 메시지 표시
-      console.error(err);
-      setError("아이디 또는 비밀번호가 올바르지 않습니다.");
-    } finally {
-      setIsLoading(false)
-    }
-  }
+      const reason = err?.reason;
 
+      if (Array.isArray(reason)) {
+        const [loginIdExists, passwordExists] = reason;
+
+        if (!loginIdExists && !passwordExists) {
+          setError("아이디와 비밀번호 모두 존재하지 않습니다.");
+        } else if (!passwordExists) {
+          setError("비밀번호가 일치하지 않습니다.");
+        } else {
+          setError("아이디가 존재하지 않습니다.");
+        }
+      } else {
+        setError("로그인 중 오류가 발생했습니다.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Card className="p-6">
@@ -91,7 +98,15 @@ export function LoginForm() {
           />
         </div>
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={
+            isLoading ||
+            !formData.loginId.trim() ||
+            !formData.password.trim()
+          }
+        >
           {isLoading ? "로그인 중..." : "로그인"}
         </Button>
 
