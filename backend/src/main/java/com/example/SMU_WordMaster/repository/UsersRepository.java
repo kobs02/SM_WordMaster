@@ -36,4 +36,6 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
 
     // 비밀번호 존재 여부 검증
     boolean existsByPassword(String password);
+
+    boolean existsByLoginIdAndPassword(String loginId, String password);
 }

@@ -95,8 +95,13 @@ public class MemberService {
 
     // 로그인이 안 될 경우, 아이디의 문제인지, 비밀번호의 문제인지 파악
     public boolean[] checkLoginIdAndPassword(String loginId, String password) {
-        boolean loginIdExists = usersRepository.existsByLoginId(loginId);
-        boolean passwordExists = usersRepository.existsByPassword(password);
+        boolean loginIdExists, passwordExists;
+
+        loginIdExists = usersRepository.existsByLoginId(loginId);
+        if (loginIdExists)
+            passwordExists = usersRepository.existsByLoginIdAndPassword(loginId, password);
+        else
+            passwordExists = usersRepository.existsByPassword(password);
 
         return new boolean[] { loginIdExists, passwordExists };
     }
