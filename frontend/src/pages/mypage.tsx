@@ -372,7 +372,7 @@ export default function MyPage() {
                     <div>
                       <h3 className="text-xl font-bold">{user?.name}</h3>
                       <p className="text-muted-foreground dark:text-gray-400">
-                        현재 랭킹: {userRankIndex !== -1 ? userRankIndex + 1 : "정보 없음"}위
+                        현재 랭킹: {userRankIndex !== -1 ? userRankIndex : "정보 없음"}위
                       </p>
                     </div>
                   </div>

@@ -23,6 +23,7 @@ export default function GamePage() {
   const [isGameFinished, setIsGameFinished] = useState(false)
   const [wrongAnswers, setWrongAnswers] = useState<Word[]>([])
   const [loading, setLoading] = useState(true)
+  const [correctAnswers, setCorrectAnswers] = useState<Word[]>([])
 
   useEffect(() => {
     const stateWords = location.state?.words
@@ -67,9 +68,9 @@ export default function GamePage() {
       if (wrongAnswers.length > 0) {
         updateWrongAnswers(wrongAnswers)
       }
-      updateRankings(words)
+      updateRankings(correctAnswers) // ✅ 정답 단어만 넘기기
     }
-  }, [isGameFinished, wrongAnswers])
+  }, [isGameFinished, wrongAnswers, correctAnswers])
 
   const updateWrongAnswers = async (wrongWords: Word[]) => {
     if (!wrongWords || wrongWords.length === 0 || !user?.loginId) return;
@@ -122,7 +123,9 @@ export default function GamePage() {
     }
 
   const handleAnswer = (isCorrect: boolean) => {
-    if (!isCorrect) {
+    if (isCorrect) {
+      setCorrectAnswers((prev) => [...prev, words[currentIndex]])
+    } else {
       setWrongAnswers((prev) => [...prev, words[currentIndex]])
     }
 
