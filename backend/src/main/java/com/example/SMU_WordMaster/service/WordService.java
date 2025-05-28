@@ -78,10 +78,7 @@ public class WordService {
     public void deleteWord(List<String> wordList) {
         for (String s : wordList) {
             Words wordEntity = utils.getWordsEntity(s);
-            String spelling = wordEntity.getSpelling();
-            // 중복 저장 방지
-            if (!wordsRepository.existsBySpelling(spelling))
-                wordsRepository.deleteById(wordEntity.getWordId());
+            wordsRepository.deleteById(wordEntity.getWordId());
         }
     }
 }
