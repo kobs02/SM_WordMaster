@@ -48,6 +48,29 @@ export default function AdminDashboard() {
   const selectedLevels = useMemo(() => new Set(selectedWordArray.map(w => w.level)), [selectedWordArray])
   const levelConflict = selectedLevels.size > 1
 
+  const lastWord = newWords[newWords.length - 1];
+
+  // 프론트엔드에서 새로 추가된 단어간 중복 여부 검사
+  const isDuplicateSpelling = useMemo(() => {
+    if (!lastWord?.spelling?.trim()) return false;
+
+    const spellingSet = new Set(
+      newWords
+        .slice(0, -1)
+        .map((word) => word.spelling?.trim().toLowerCase())
+    );
+
+    return spellingSet.has(lastWord.spelling.trim().toLowerCase());
+  }, [newWords]);
+
+  const isAddDisabled =
+    !lastWord?.spelling?.trim() ||
+    !/^[a-zA-Z\s]+$/.test(lastWord.spelling) ||
+    !lastWord.mean?.trim() ||
+    !/^[가-힣\s]+$/.test(lastWord.mean) ||
+    !lastWord.level ||
+    isDuplicateSpelling;
+
   const handleAddWordField = () => {
     setNewWords((prev) => [...prev, { spelling: "", mean: "", level: "A1" }])
   }
@@ -247,7 +270,7 @@ export default function AdminDashboard() {
                       <Plus className="h-4 w-4" />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-white dark:bg-gray-800 dark:text-white">
+                  <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-white text-black">
                     <DialogHeader>
                       <DialogTitle>단어 추가</DialogTitle>
                       <DialogDescription>
@@ -274,7 +297,7 @@ export default function AdminDashboard() {
                               }}
                               onBlur={(e) => handleCheckDuplicate(index, e.target.value)}
                             />
-                            <div className="min-h-[1.25rem] ml-1">
+                            <div>
                               {word.spelling && !/^[a-zA-Z\s]*$/.test(word.spelling) && (
                                 <p className="text-sm text-red-500">영어와 공백만 입력 가능합니다.</p>
                               )}
@@ -305,7 +328,7 @@ export default function AdminDashboard() {
                                 }
                               }}
                             />
-                            <div className="min-h-[1.25rem] ml-1">
+                            <div>
                               {word.mean && !/^[가-힣\s]*$/.test(word.mean) && (
                                 <p className="text-sm text-red-500">한글과 공백만 입력 가능합니다.</p>
                               )}
@@ -323,7 +346,7 @@ export default function AdminDashboard() {
                               <SelectTrigger className="h-[40px]"> {/* 높이 고정 */}
                                 <SelectValue placeholder="레벨" />
                               </SelectTrigger>
-                              <SelectContent className="bg-white dark:bg-gray-700 dark:text-white">
+                              <SelectContent className="bg-white text-black">
                                 <SelectItem value="A1">A1</SelectItem>
                                 <SelectItem value="A2">A2</SelectItem>
                                 <SelectItem value="B1">B1</SelectItem>
@@ -332,7 +355,7 @@ export default function AdminDashboard() {
                                 <SelectItem value="C2">C2</SelectItem>
                               </SelectContent>
                             </Select>
-                            <div className="min-h-[1.25rem]" /> {/* 메시지 없지만 높이 유지 */}
+                            <div/>
                           </div>
                         </div>
 
@@ -348,23 +371,23 @@ export default function AdminDashboard() {
                           </button>
                         </div>
                       </div>
-
                       {/* 중복 메시지 */}
-                      <div className="min-h-[1.25rem] ml-1">
-                        {duplicateErrorIndex === index && (
+                      <div>
+                        {duplicateErrorIndex === index ? (
                           <p className="text-sm text-red-500">이미 존재하는 단어입니다.</p>
-                        )}
+                        ) : isDuplicateSpelling && index === newWords.length - 1 ? (
+                          <p className="text-sm text-red-500">이미 추가된 단어입니다.</p>
+                        ) : null}
                       </div>
                     </div>
 
                   ))}
-
                   {newWords.length < 20 && (
                     <Button
                       variant="outline"
                       onClick={handleAddWordField}
                       className="w-full"
-                      disabled={newWords.length >= 20}
+                      disabled={newWords.length >= 20 || (newWords.length >= 1 && isAddDisabled)}
                     >
                       단어 추가 ({validWordCount}/20)
                     </Button>
@@ -388,7 +411,7 @@ export default function AdminDashboard() {
                                 <Minus className="h-4 w-4" />
                               </Button>
                             </AlertDialogTrigger>
-                            <AlertDialogContent className="bg-white text-black dark:bg-gray-800 dark:text-white">
+                            <AlertDialogContent className="bg-white text-black">
                               <AlertDialogHeader>
                                 <AlertDialogTitle>단어 삭제</AlertDialogTitle>
                                 <AlertDialogDescription>
@@ -399,7 +422,9 @@ export default function AdminDashboard() {
                                 <AlertDialogCancel className="bg-gray-200 dark:bg-gray-700 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600">
                                   아니오
                                 </AlertDialogCancel>
-                                <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-700 dark:hover:bg-red-600">
+                                <AlertDialogAction
+                                className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-700 dark:hover:bg-red-600"
+                                onClick={handleDeleteWords}>
                                   네
                                 </AlertDialogAction>
                               </AlertDialogFooter>
@@ -474,7 +499,7 @@ export default function AdminDashboard() {
       {/* 수정 다이얼로그 */}
             {editingWord && (
               <Dialog open={!!editingWord} onOpenChange={() => setEditingWord(null)}>
-                <DialogContent className="bg-white dark:bg-gray-800 dark:text-white">
+                <DialogContent className="bg-white text-black">
                   <DialogHeader>
                     <DialogTitle>단어 수정</DialogTitle>
                     <DialogDescription>단어 정보를 수정해주세요.</DialogDescription>
@@ -513,17 +538,23 @@ export default function AdminDashboard() {
                           }
                         }}
                       />
-                      <div className="min-h-[1.25rem] ml-1">
+                      <div>
                         {tempEditWord?.mean && !/^[가-힣\s]*$/.test(tempEditWord.mean) && (
                           <p className="text-sm text-red-500">한글과 공백만 입력 가능합니다.</p>
                         )}
                       </div>
                     </div>
-
-
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setEditingWord(null)}>취소</Button>
-                    <Button onClick={handleSaveEditedWord}>저장</Button>
+                    <Button
+                      onClick={handleSaveEditedWord}
+                      disabled={
+                        !tempEditWord?.spelling?.trim() ||
+                        !tempEditWord?.mean?.trim()
+                      }
+                    >
+                      저장
+                    </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>

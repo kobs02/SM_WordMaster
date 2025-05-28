@@ -20,12 +20,30 @@ export function SignupForm() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // 실제 구현에서는 API 호출로 회원가입 처리
-    console.log("회원가입 데이터:", formData)
-    navigate("/login")
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("/api/member/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (res.ok) {
+        navigate("/login");
+      } else {
+        const errorData = await res.json();
+        console.error("회원가입 실패:", errorData);
+      }
+    } catch (err) {
+      console.error("요청 중 오류 발생:", err);
+    }
+  };
+
+
 
   return (
     <Card className="p-6">

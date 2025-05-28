@@ -55,3 +55,8 @@ export interface RankingsResponseDto {
     rankingLevel: "Bronze" | "Silver" | "Gold" | "Platinum" | "Ruby" | "Diamond"
     exp: number;
 }
+
+export enum Role {
+  USER = "USER",
+  ADMIN = "ADMIN",
+}

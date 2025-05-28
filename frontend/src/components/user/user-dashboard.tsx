@@ -7,7 +7,6 @@ export default function UserDashboard() {
   const navigate = useNavigate()
   const defaultLevel = "A1"
 
-
   const menuItems = [
     {
       title: "단어 학습",

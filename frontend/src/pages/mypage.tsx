@@ -18,6 +18,7 @@ export default function MyPage() {
   const [bookmarkedWords, setBookmarkedWords] = useState<BookmarksResponseDto[]>([])
   const [selectedWords, setSelectedWords] = useState<string[]>([])
   const [rankings, setRankings] = useState<RankingsResponseDto[]>([])
+  const [passwordMatchError, setPasswordMatchError] = useState<string | null>(null);
 
   // 회원 정보 수정 상태
   const [profileData, setProfileData] = useState({
@@ -26,6 +27,23 @@ export default function MyPage() {
     newPassword: "",
     confirmPassword: "",
   })
+
+  // 저장 버튼 활성화 조건
+  const isFormFilled = useMemo(() => {
+    return (
+      profileData.name.trim() !== "" &&
+      profileData.currentPassword.trim() !== "" &&
+      profileData.newPassword.trim() !== "" &&
+      profileData.confirmPassword.trim() !== ""
+    );
+  }, [profileData]);
+
+  // 비밀번호 확인 불일치 여부
+  const isPasswordMismatch =
+    profileData.newPassword && profileData.confirmPassword &&
+    profileData.newPassword !== profileData.confirmPassword;
+
+
 
   // 단어별로 예문 그룹화
   const [sentenceList, setSentenceList] = useState<Sentence[]> ([ {
@@ -46,6 +64,38 @@ export default function MyPage() {
     });
     return acc;
   }, {} as Record<string, Sentence[]>);
+
+
+  // 현재 비밀번호와 실제 비밀번호가 일치하는지 검증 요청
+  const validateCurrentPassword = async () => {
+    if (!profileData.currentPassword.trim()) return;
+
+    try {
+      const res = await fetch(
+        `/api/member/checkPassword?password=${encodeURIComponent(profileData.currentPassword)}`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+
+      const json = await res.json();
+      if (!json.success) {
+        console.warn("검증 실패:", json.message);
+        setPasswordMatchError("❗ 비밀번호 검증 실패");
+        return;
+      }
+
+      if (!json.data) {
+        setPasswordMatchError("현재 비밀번호가 올바르지 않습니다.");
+      } else {
+        setPasswordMatchError(null);
+      }
+    } catch (err) {
+      console.error("비밀번호 확인 오류", err);
+      setPasswordMatchError("❗ 서버 오류로 비밀번호 확인에 실패했습니다.");
+    }
+  };
 
 
   const fetchSentence = async () => {
@@ -127,18 +177,30 @@ export default function MyPage() {
       fetchRankings()
     }, [user?.loginId])
 
+  // 경험치 기준으로 공동 순위 계산된 rankingsWithRank 반환
+  const rankingsWithRank = useMemo(() => {
+    const sorted = [...rankings].sort((a, b) => b.exp - a.exp)
+
+    let lastExp: number | null = null
+    let lastRank = 0
+    let skip = 0
+
+    return sorted.map((r, idx) => {
+      if (r.exp === lastExp) {
+        skip += 1
+      } else {
+        lastRank = lastRank + skip + 1
+        skip = 0
+      }
+
+      lastExp = r.exp
+
+      return { ...r, rank: lastRank }
+    })
+  }, [rankings])
+
   // 사용자의 랭킹 인덱스 찾기
-  const userRankIndex = rankings.findIndex((rank) => rank.name === user?.name)
-
-  // 사용자 주변 랭킹 (위아래 5명)
-  const getNearbyRankings = () => {
-    if (userRankIndex === -1) return rankings.slice(0, 10)
-
-    const start = Math.max(0, userRankIndex - 5)
-    const end = Math.min(rankings.length, userRankIndex + 6)
-    return rankings.slice(start, end)
-  }
-
+  const userRankIndex = rankingsWithRank.find((r) => r.name === user?.name)?.rank;
 
   const handleRemoveBookmark = async (spelling: string) => {
       if (!user) return null;
@@ -167,10 +229,35 @@ export default function MyPage() {
   };
 
 
-  const handleProfileUpdate = (e: React.FormEvent) => {
-    e.preventDefault()
-    alert("프로필이 업데이트되었습니다.")
-  }
+  const handleProfileUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const params = new URLSearchParams();
+      params.append("name", profileData.name);
+      params.append("password", profileData.newPassword); // or currentPassword + newPassword 둘 다 보내고 싶다면 분리 필요
+
+      const res = await fetch("/api/member", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        credentials: "include", // 세션 사용 시 필수
+        body: params.toString(),
+      });
+
+      if (res.ok) {
+        alert("프로필이 업데이트되었습니다.");
+      } else {
+        const error = await res.json();
+        alert(`업데이트 실패: ${error.message || res.status}`);
+      }
+    } catch (err) {
+      console.error("업데이트 요청 중 오류 발생:", err);
+      alert("업데이트 중 오류가 발생했습니다.");
+    }
+  };
+
 
   if (!user) {
     navigate("/login")
@@ -201,6 +288,7 @@ export default function MyPage() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleProfileUpdate} className="space-y-4">
+                  {/* 이름 */}
                   <div className="space-y-2">
                     <Label htmlFor="name">이름</Label>
                     <Input
@@ -211,6 +299,7 @@ export default function MyPage() {
                     />
                   </div>
 
+                  {/* 현재 비밀번호 */}
                   <div className="space-y-2">
                     <Label htmlFor="currentPassword">현재 비밀번호</Label>
                     <Input
@@ -218,10 +307,15 @@ export default function MyPage() {
                       type="password"
                       value={profileData.currentPassword}
                       onChange={(e) => setProfileData({ ...profileData, currentPassword: e.target.value })}
+                      onBlur={validateCurrentPassword} // 입력 후 포커스 벗어나면 확인
                       className="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
                     />
+                    {passwordMatchError && (
+                      <p className="text-sm text-red-500">{passwordMatchError}</p>
+                    )}
                   </div>
 
+                  {/* 새 비밀번호 */}
                   <div className="space-y-2">
                     <Label htmlFor="newPassword">새 비밀번호</Label>
                     <Input
@@ -233,18 +327,31 @@ export default function MyPage() {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">새 비밀번호 확인</Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      value={profileData.confirmPassword}
-                      onChange={(e) => setProfileData({ ...profileData, confirmPassword: e.target.value })}
-                      className="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
-                    />
-                  </div>
+                  {/* 새 비밀번호 확인 */}
+                  {/* 새 비밀번호 확인 */}
+                  {profileData.newPassword && (
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword">새 비밀번호 확인</Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        value={profileData.confirmPassword}
+                        onChange={(e) => setProfileData({ ...profileData, confirmPassword: e.target.value })}
+                        className="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
+                      />
+                      {isPasswordMismatch && (
+                        <p className="text-sm text-red-500">새 비밀번호가 일치하지 않습니다.</p>
+                      )}
+                    </div>
+                  )}
 
-                  <Button type="submit" className="dark:bg-blue-700 dark:hover:bg-blue-600">
+
+                  {/* 저장 버튼 */}
+                  <Button
+                    type="submit"
+                    className="dark:bg-blue-700 dark:hover:bg-blue-600"
+                    disabled={!isFormFilled || isPasswordMismatch || !!passwordMatchError} // ✅ 조건부 비활성화
+                  >
                     저장
                   </Button>
                 </form>
@@ -281,8 +388,8 @@ export default function MyPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {getNearbyRankings().map((rank, index) => {
-                      const isCurrentUser = rank.name === user?.name
+                    {rankingsWithRank.map((rank) => {
+                      const isCurrentUser = rank.name === user?.name;
                       return (
                         <TableRow
                           key={rank.name}
@@ -290,12 +397,18 @@ export default function MyPage() {
                         >
                           <TableCell className="dark:text-gray-300">
                             <div className="flex items-center justify-center">
-                              {index < 3 ? (
+                              {rank.rank <= 3 ? (
                                 <Trophy
-                                  className={`h-5 w-5 ${index === 0 ? "text-yellow-500" : index === 1 ? "text-gray-400" : "text-amber-700"}`}
+                                  className={`h-5 w-5 ${
+                                    rank.rank === 1
+                                      ? "text-yellow-500"
+                                      : rank.rank === 2
+                                      ? "text-gray-400"
+                                      : "text-amber-700"
+                                  }`}
                                 />
                               ) : (
-                                index + 1
+                                rank.rank
                               )}
                             </div>
                           </TableCell>
@@ -309,7 +422,7 @@ export default function MyPage() {
                           <TableCell className="dark:text-gray-300">{rank.exp.toLocaleString()}</TableCell>
                           <TableCell className="dark:text-gray-300">{rank.rankingLevel}</TableCell>
                         </TableRow>
-                      )
+                      );
                     })}
                   </TableBody>
                 </Table>

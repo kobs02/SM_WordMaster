@@ -1,10 +1,7 @@
 package com.example.SMU_WordMaster.service;
 
 import com.example.SMU_WordMaster.dto.RankingsResponseDto;
-import com.example.SMU_WordMaster.entity.Level;
-import com.example.SMU_WordMaster.entity.RankingLevel;
-import com.example.SMU_WordMaster.entity.Rankings;
-import com.example.SMU_WordMaster.entity.Users;
+import com.example.SMU_WordMaster.entity.*;
 import com.example.SMU_WordMaster.exception.ExpUpdateFailedException;
 import com.example.SMU_WordMaster.exception.RankingEntitySaveFailedException;
 import com.example.SMU_WordMaster.exception.RankingFindFailedException;
@@ -68,13 +65,13 @@ public class RankingsService {
         catch (Exception e) { throw new ExpUpdateFailedException(loginId, e); }
     }
 
-    // 본인 랭킹 + 전체 랭킹 조회하는 서비스 메서드
+    // 전체 랭킹 조회하는 서비스 메서드
     public List<RankingsResponseDto> getRankingsList() {
         List<RankingsResponseDto> result = new ArrayList<>();
 
         try {
-            if (usersRepository.countUsers() > rankingsRepository.count()) {
-                List<Users> usersList = usersRepository.findAll();
+            if (usersRepository.countUsers(MemberRole.USER) > rankingsRepository.count()) {
+                List<Users> usersList = usersRepository.findUsers(MemberRole.USER);
                 for (Users u : usersList) {
                     if (!rankingsRepository.existsByUsers(u)) {
                         Rankings rankingEntity = new Rankings();

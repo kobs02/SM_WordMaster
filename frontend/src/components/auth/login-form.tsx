@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
+import { Role, User } from "@/lib/types";
 
 interface LoginFormState {
   loginId: string;
@@ -32,23 +33,27 @@ export function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const { loginId, password } = formData
+
     setError("")
     setIsLoading(true)
 
     try {
-      const result = await login(formData.loginId, formData.password)
+      // auth-context의 login 함수를 호출
+      const user: User = await login(loginId, password)
+      console.log("로그인된 유저:", user);           // 디버그용
 
-      if (result.success) {
-        navigate("/")
-      } else {
-        setError(result.message)
-      }
-    } catch (err) {
-      setError("로그인 중 오류가 발생했습니다.")
+      // 로그인에 성공하면 role에 따라 리디렉트
+      navigate("/")
+    } catch (err: any) {
+      // 로그인 실패 시 에러 메시지 표시
+      console.error(err);
+      setError("아이디 또는 비밀번호가 올바르지 않습니다.");
     } finally {
       setIsLoading(false)
     }
   }
+
 
   return (
     <Card className="p-6">
