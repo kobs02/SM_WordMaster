@@ -43,6 +43,9 @@ export default function MyPage() {
     profileData.newPassword && profileData.confirmPassword &&
     profileData.newPassword !== profileData.confirmPassword;
 
+  const isPasswordValid = useMemo(() => {
+    return /^[A-Za-z0-9@]{6,12}$/.test(profileData.newPassword);
+  }, [profileData.newPassword]);
 
 
   // 단어별로 예문 그룹화
@@ -356,7 +359,7 @@ export default function MyPage() {
                   <Button
                     type="submit"
                     className="dark:bg-blue-700 dark:hover:bg-blue-600"
-                    disabled={!isFormFilled || isPasswordMismatch || !!passwordMatchError} // ✅ 조건부 비활성화
+                    disabled={!isFormFilled || isPasswordMismatch || !!passwordMatchError || !isPasswordValid }
                   >
                     저장
                   </Button>
