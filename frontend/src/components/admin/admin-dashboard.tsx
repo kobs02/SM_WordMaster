@@ -577,7 +577,8 @@ export default function AdminDashboard() {
                       onClick={handleSaveEditedWord}
                       disabled={
                         !tempEditWord?.spelling?.trim() ||
-                        !tempEditWord?.mean?.trim()
+                        !tempEditWord?.mean?.trim() ||
+                        duplicateSpelling
                       }
                     >
                       저장

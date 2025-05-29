@@ -43,6 +43,7 @@ export function LoginForm() {
       navigate("/");
     } catch (err: any) {
       const reason = err?.reason;
+      console.log(reason);
 
       if (Array.isArray(reason)) {
         const [loginIdExists, passwordExists] = reason;
