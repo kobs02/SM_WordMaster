@@ -574,11 +574,12 @@ export default function AdminDashboard() {
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setEditingWord(null)}>취소</Button>
                     <Button
-                      onClick={handleSaveEditedWord}
-                      disabled={
-                        !tempEditWord?.spelling?.trim() ||
-                        !tempEditWord?.mean?.trim()
-                      }
+                        onClick={handleSaveEditedWord}
+                        disabled={
+                            !tempEditWord?.spelling?.trim() ||
+                            !tempEditWord?.mean?.trim() ||
+                            duplicateSpelling
+                        }
                     >
                       저장
                     </Button>
