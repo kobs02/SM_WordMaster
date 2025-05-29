@@ -51,7 +51,7 @@ export function LoginForm() {
           setError("아이디와 비밀번호 모두 존재하지 않습니다.");
         } else if (!passwordExists) {
           setError("비밀번호가 일치하지 않습니다.");
-        } else {
+        } else if (!loginIdExists){
           setError("아이디가 존재하지 않습니다.");
         }
       } else {

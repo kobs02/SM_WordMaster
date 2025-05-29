@@ -316,6 +316,7 @@ export default function MyPage() {
                   </div>
 
                   {/* 새 비밀번호 */}
+                  {/* 새 비밀번호 */}
                   <div className="space-y-2">
                     <Label htmlFor="newPassword">새 비밀번호</Label>
                     <Input
@@ -325,9 +326,14 @@ export default function MyPage() {
                       onChange={(e) => setProfileData({ ...profileData, newPassword: e.target.value })}
                       className="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
                     />
+                    {profileData.newPassword &&
+                      !/^[A-Za-z0-9@]{6,12}$/.test(profileData.newPassword) && (
+                        <p className="text-sm text-red-500">
+                          비밀번호는 6~12자 사이의 영문, 숫자, @만 사용 가능합니다.
+                        </p>
+                    )}
                   </div>
 
-                  {/* 새 비밀번호 확인 */}
                   {/* 새 비밀번호 확인 */}
                   {profileData.newPassword && (
                     <div className="space-y-2">
